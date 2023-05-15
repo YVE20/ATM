@@ -1,0 +1,160 @@
+<aside class="right-side">
+	<!-- Bootstrap imgViewer -->
+	<link href="template/assets/plugins/imgViewer/jquery.magnify.css" rel="stylesheet">
+	<script src="template/assets/plugins/imgViewer/jquery.magnify.js"></script>
+	<style>
+		.magnify-modal {
+			box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.3);
+		}
+
+		.magnify-stage {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			border-width: 0;
+		}
+
+		.magnify-footer .magnify-toolbar {
+			display: inline-block;
+			height: 40px;
+			background-color: rgba(0, 0, 0, .5);
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+		}
+
+		.magnify-stage img {
+			width: 0;
+		}
+
+		.magnify-loading {
+			background-color: transparent;
+		}
+	</style>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1><?php echo $pengadaans['name']; ?> <?php _e('Calculation'); ?></h1>
+		<ol class="breadcrumb">
+			<li><a href="?route=dashboard"><i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li>
+			<li><a href="?route=master-data/tender/tender/managepengadaan"><?php _e('Pengadaan'); ?></a></li>
+			<li class="active"><?php echo $pengadaans['name']; ?></li>
+		</ol>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?></div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+				<!-- Custom Tabs (Pulled to the right) -->
+							<section class="content-header">
+								<h1 class="pull-left">
+									<?php _e('Setting'); ?></h1>
+								<div style="clear:both">
+								</div>
+							</section>
+							<!--baru-->
+							<section class="content">
+							
+								<div class="row">
+											<div class="box-body">
+												<form role="form" method="post" class="form-horizontal"
+													style="padding:15px;" name="roleForm">
+													<div class="row">
+														<div class="col-md-12">
+															<div class="box box-warning">
+																<div class="box-header with-border">
+																	<h3 class="box-title"><?php _e('Criteria'); ?></h3>
+																	<div class="box-tools pull-right">
+																		<?php if(in_array("addpengadaanacuan",$perms) || true) { ?><a
+																			data-toggle='tooltip' title='<?php _e('New Criteria'); ?>'
+																			class="btn btn-primary btn-sm " href="#"
+																			onClick='showM("?modal=pengadaanacuan/add&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $_GET['id']; ?>&pengadaanid=<?php echo $pengadaans['id']; ?>&section=");return false'><?php _e('New Criteria'); ?></a><?php } ?>
+																
+																			<button type="button" class="btn btn-default btn-sm"
+																			data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+																				class="fa fa-minus"></i></button></div>
+																</div>
+																<div class="box-body">
+																		<div class="col-md-12">
+																			<?php foreach ($acuan as $item) { ?>
+																				<label for="acuan"><?php echo $item['name'];?> 
+																				</label>
+																				<div class="pull-right">
+																	
+																					<?php if($isAdmin || in_array("EditCaluclation",$perms)): ?>
+																					<a data-toggle='tooltip' title='<?php _e('Edit Acuan Pengadaan'); ?>'
+																						class="btn btn-default btn-xs " href="#"
+																						onClick='showM("?modal=PengadaanAcuan/edit&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																							class='fa fa-edit'></i></a>
+																					<?php endif; ?>
+																					<?php if($isAdmin || in_array("DeleteCaluclation",$perms)): ?>
+																					<a data-toggle='tooltip' title='<?php _e('Delete Acuan Pengadaan'); ?>'
+																						class="btn btn-danger btn-xs " href="#"
+																				onClick='showM("?modal=PengadaanAcuan/delete&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																							class='fa fa-trash-o'></i></a>
+																			<?php endif; ?>
+																			
+																		</div>
+																		<div class="box-body">
+																		<div class="row">
+
+																			<div class="col-md-3">
+																			<div class="input-group"><span class="input-group-addon">4</span>
+																				<input oninput="myFunction4(event)" type="text" class="form-control"
+																				value="" id="4" name="4" 
+																				required autocomplete="off">
+																			</div>
+																	</div>
+																				<div class="col-md-3">
+																						<div class="input-group"><span class="input-group-addon">3</span>
+																							<input oninput="myFunction3(event)" type="text" class="form-control"
+																							value="" id="3" name="3" 
+																							required autocomplete="off">
+																						</div>
+																				</div>
+																				<div class="col-md-3">
+																					<div class="input-group"><span class="input-group-addon">2</span>
+																						<input oninput="myFunction2(event)" type="text" class="form-control"
+																						value="" id="2" name="2" 
+																						required autocomplete="off">
+																					</div>
+																			</div><div class="col-md-3">
+																				<div class="input-group"><span class="input-group-addon">1</span>
+																					<input oninput="myFunction1(event)" type="text" class="form-control"
+																					value="" id="1" name="1" 
+																					required autocomplete="off">
+																				</div>
+																		</div>
+																		</div>
+																	</div>
+																				<?php } ?>
+																	</div>
+																</div>
+														</div>
+													</div>
+
+													<input type="hidden" name="routeid" value="<?= $_GET['id'];?>">
+													<input type="hidden" name="action" value="calculationGuardrailReffDetail">
+													<input type="hidden" name="route" value="calculation/guardrail/manage">
+	
+													<button type="submit" class="btn btn-success pull-right"><i
+															class="fa fa-save"></i>
+														<?php _e('Save'); ?></button>
+												</form>
+											</div>
+								</div>
+		</section>
+			<!-- /.col -->
+		</div>
+	</div>
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->
+<script src="template/assets/plugins/chartjs/Chart.min.js"></script>

@@ -1,0 +1,124 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1 class="pull-left"><?php _e('Potensi Order'); ?> <small> <?php _e('Manage Order'); ?></small>
+		</h1>
+		<div class="pull-right"><a onClick='showM("?modal=po/add&reroute=master-data/po");return false'
+				data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i>
+				<?php _e('NEW ORDER'); ?></a></div>
+		<div style="clear:both"></div>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?>
+				</div>
+			</div>
+		</div>
+		<?php endif; ?>
+
+        <div class="row">
+			<div class="col-md-12">
+                <div class="box box-primary">
+				<div class="nav-tabs-custom">
+					<div class="tab-content">
+							<div class="table-responsive">
+								<table id="dataTablesFullNoOrder" class="table table-striped table-hover">
+									<thead>
+										<tr>
+                                            <th>
+                                                <center><?php _e('ID'); ?></center>
+                                            </th>
+                                            <th>
+                                                <center><?php _e('Nama Barang'); ?></center>
+                                            </th>
+                                            <th>
+                                                <center><?php _e('Customer'); ?></center>
+                                            </th>
+                                            <th>
+                                                <center><?php _e('Jumlah/Satuan'); ?></center>
+                                            </th>
+											<th>
+                                                <center><?php _e('Alamat'); ?></center>
+                                            </th>
+                                            <th>
+                                                <center><?php _e('Harga'); ?></center>
+                                            </th>
+                                            <th>
+                                                <center><?php _e('Tanggal Pengiriman'); ?></center>
+                                            </th>
+											<th>
+                                                <center><?php _e('Keterangan'); ?></center>
+                                            </th>
+                                            <th class="text-right"></th>
+                                        </tr>
+									</thead>
+                                    <tbody>
+										<?php foreach ($poo as $po): ?>
+										<tr>
+											<td><center><?= $po['id'] ?></center></td>
+											<td>
+												<center><?= $po['nama_barang']?></center>
+											</td>
+											<td>
+												<center><?= $po['customer']?></center>
+											</td>
+											<td>
+												<center><?= $po['jml_satuan']?></center>
+											</td>
+											<td><center><?php 
+												$text ="";
+												if($po['district'] != "" && $po['district'] != "0"){
+													$text .= getSingleValue("districts","name",$po['district']).", ";
+												}
+												if($po['regency'] != "" && $po['regency'] != "0"){
+													$text .= getSingleValue("regencies","name",$po['regency']).", ";
+												}
+												if($po['province'] != "" && $po['province'] != "0"){
+													$text .= getSingleValue("provinces","name",$po['province']);
+												}
+												echo $text;
+												?>
+											</center></td>
+												<td>
+													<center><?= $po['harga']?></center>
+												</td>
+												<td>
+													<center><?= $po['tgl_pengiriman']?></center>
+												</td>
+												<td>
+													<center><?= $po['keterangan']?></center>
+												</td>
+												<td>
+                                                    <div class="pull-right">
+                                                        <?php if($isAdmin || in_array("editPo",$perms)): ?>
+                                                        <a href='#'
+                                                        onClick='showM("index.php?modal=po/edit&reroute=master-data/po&id=<?php echo $po['id']; ?>");return false'
+                                                        class='btn btn-default btn-xs'><i class='fa fa-edit'></i></a>&nbsp;
+                                                        <?php endif; ?>
+                                                        <?php if ($isAdmin || in_array('deletePo', $perms)): ?>
+                                                            <a href='#' onClick='showM("?modal=po/delete&reroute=master-data/po&id=<?= $po['id'] ?>");return false' class='btn btn-danger btn-xs'>
+																<i class='fa fa-trash-o'></i>
+                                                            </a>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+											
+										</tr>
+									<?php endforeach; ?>
+                                    </tbody>
+								</table>
+							</div>
+							<!-- /.row -->
+					</div>
+				</div>
+            </div>
+			</div>
+		</div>
+
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->

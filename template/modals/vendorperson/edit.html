@@ -1,0 +1,50 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">
+        <?php _e('Edit Vendor Person'); ?> <small>
+            <?php _e($vp['nama']);?></small></h4>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="nama">
+                    <?php _e('Nama'); ?> *</label>
+                <input type="text" class="form-control" autocomplete="off" id="nama" name="nama" value="<?php echo $vp['nama'];?>" required>
+                </div>
+            <div class="form-group">
+                <label for="id_job"><?php _e('Jabatan'); ?> *</label>
+                <select class="form-control select2 select2-hidden-accessible" id="id_job" required name="id_job" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                    <option value='0' <?php if($vp['id_job'] == 0) echo "selected"; ?>><?php echo "Undefined"; ?></option>
+                    <?php foreach ($jb as $item) { ?>
+                    <option value='<?php echo $item['id']; ?>' <?php if($item['id'] == $vp['id_job']) echo "selected"; ?>>
+                        <?php echo $item['name']; ?>                    
+                    </option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="telp">
+                    <?php _e('Telephone'); ?> *</label>
+                    <input type="text" class="form-control" autocomplete="off" value="<?php echo $vp['telp'];?>" id="telp"  name="telp" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">
+                        <?php _e('Email'); ?></label>
+                        <input type="email" class="form-control" autocomplete="off" value="<?php echo $vp['email'];?>" id="email" name="email">
+                    </div>
+                    <input type="hidden" name="action" value="editVendorPerson">
+                    <input type="hidden" name="id" value="<?php echo $vp['id']; ?>">
+                    <input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+                    <?php if(isset($_GET['section'])){?>
+                    <input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+                    <?php }?>
+                    <?php if(isset($_GET['routeid'])){?>
+                    <input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+                    <?php }?>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+                            <?php _e('Cancel'); ?></button>
+                            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+                        </div>
+                        <script type="text/javascript">    
+                            $(function() { $(".select2").select2(); });
+                        </script>

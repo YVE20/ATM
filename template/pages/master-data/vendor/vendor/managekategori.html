@@ -1,0 +1,148 @@
+<aside class="right-side">
+	<!-- Bootstrap imgViewer -->
+	<link href="template/assets/plugins/imgViewer/jquery.magnify.css" rel="stylesheet">
+	<script src="template/assets/plugins/imgViewer/jquery.magnify.js"></script>
+	<style>
+		.magnify-modal {
+			box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.3);
+		}
+
+		.magnify-stage {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			border-width: 0;
+		}
+
+		.magnify-footer .magnify-toolbar {
+			display: inline-block;
+			height: 40px;
+			background-color: rgba(0, 0, 0, .5);
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+		}
+
+		.magnify-stage img {
+			width: 0;
+		}
+
+		.magnify-loading {
+			background-color: transparent;
+		}
+	</style>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1><?php echo $kategoris['name']; ?></h1>
+		<ol class="breadcrumb">
+			<li><a href="?route=dashboard"><i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li>
+			<li><a href="?route=master-data/vendor/kategori"><?php _e('Kategori'); ?></a></li>
+			<li class="active"><?php echo $kategoris['name']; ?></li>
+		</ol>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?></div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="row">
+			<div class="col-md-12">
+				<!-- Custom Tabs (Pulled to the right) -->
+				<div class="nav-tabs-custom">
+					<div class="tab-content">
+						<div class="tab-pane <?php if ($section == "") echo 'active'; ?>" id="tab-summary">
+							<div class="row">
+<!--Sub Kategori-->
+								<div class="col-md-12">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title"><?php _e('Sub Kategori'); ?></h3>
+											<div class="pull-right box-tools">
+												<?php if(in_array("addSubKategori",$perms) || true) { ?><a
+													data-toggle='tooltip' title='<?php _e('New Vendor Person'); ?>'
+													class="btn btn-primary btn-sm " href="#"
+													onClick='showM("?modal=SubKategori/add&reroute=master-data/vendor/vendor/managekategori&routeid=<?php echo $_GET['id']; ?>&kategoriid=<?php echo $kategoris['id']; ?>&section=");return false'><?php _e('New Sub Kategori'); ?></a><?php } ?>
+											</div>
+										</div>
+										<div class="box-body">
+											<div class="table-responsive">
+												<table id="dataTablesSpoil" class="table table-striped table-hover">
+													<thead>
+														<tr>
+															<th>
+																<center><?php _e('Name'); ?></center>
+															</th>
+															<th style="width:90px;" class="text-right"></th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php foreach ($subkategori as $item) { ?>
+														<tr>
+															<td>
+																<center><?php echo $item['name'];?></center>
+															</td>
+
+															<td>
+																<div class="text-right">
+																	<?php if($isAdmin){
+																		if(in_array("editSubKategori",$perms) || true) { ?>
+																	<a data-toggle='tooltip' title='<?php _e('Edit Vendor Person'); ?>'
+																		class="btn btn-default btn-sm " href="#"
+																		onClick='showM("?modal=SubKategori/edit&reroute=master-data/vendor/vendor/managekategori&routeid=<?php echo $kategoris['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																			class='fa fa-edit'></i></a>&nbsp;
+																	<?php }
+																		if(in_array("deleteSubKategori",$perms) || true) {?>
+																			<a data-toggle='tooltip' title='<?php _e('Delete Vendor Person'); ?>'
+																				class="btn btn-danger btn-sm " href="#"
+																		onClick='showM("?modal=SubKategori/delete&reroute=master-data/vendor/vendor/managekategori&routeid=<?php echo $kategoris['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																					class='fa fa-trash-o'></i></a>
+																	<?php }
+																}else {
+																		if($liu['clientid']==4){
+																			if((time()-strtotime($item['timestamp'])) < (3*24*60*60)){
+																		if(in_array("deleteSubKategori",$perms) || true) { ?>
+																			<a data-toggle='tooltip' title='<?php _e('Edit Vendor Person'); ?>'
+																				class="btn btn-default btn-sm " href="#"
+																				onClick='showM("?modal=SubKategori/edit&reroute=master-data/vendor/vendor/managekategori&routeid=<?php echo $item['id']; ?>&id=<?php echo $kategoris['id']; ?>&section=");return false'><i
+																					class='fa fa-edit'></i></a>&nbsp;
+																		<?php }
+																			if(in_array("deleteVendorPendor",$perms) || true) {?>
+																				<a data-toggle='tooltip' title='<?php _e('Delete Vendor Person'); ?>'
+																					class="btn btn-danger btn-sm " href="#"
+																					onClick='showM("?modal=SubKategori/delete&reroute=master-data/vendor/vendor/managekategori&routeid=<?php echo $kategoris['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																						class='fa fa-trash-o'></i></a>
+																		<?php }
+																			}
+																	}
+																	}?>
+																</div>
+															</td>
+														</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
+											<?php if(empty($subkategoris)) echo __("There are no Sub Kategori to display."); ?>
+										</div>
+								</div>
+									
+							</div>
+
+						</div>
+						<!-- /.tab-pane -->
+
+					</div>
+					<!-- /.tab-content -->
+				</div>
+				<!-- nav-tabs-custom -->
+			</div>
+			<!-- /.col -->
+		</div>
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->
+<script src="template/assets/plugins/chartjs/Chart.min.js"></script>

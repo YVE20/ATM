@@ -1,0 +1,179 @@
+<aside class="right-side">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h4><?php _e('EDIT TENDER'); ?><small>
+				<?php _e($tenderr['kode']);?></small></h4>
+		<ol class="breadcrumb">
+			<li><a href="?route=dashboard">
+					<i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li>
+			<li><a href="?route=tender/tender"><?php _e('Tender'); ?></a></li>
+			<li><a href='?route=tender/tender/manage&id=<?php echo $tenderr['id']; ?>'><?php echo $tenderr['kode']; ?></a>
+			</li>
+			<li class="active"><?php _e('Edit Tender'); ?></li>
+		</ol>
+	</section>
+
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?></div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-default">
+					<div class="box-body">
+						<div class="row">
+							<form role="form" method="post" class="form-horizontal" style="padding:15px;">
+
+								<div class="form_container">
+									<div class="col-md-6">
+										<label for="name"><?php _e('Tender Name'); ?> *</label>
+										<input type="text" class="form-control" id="name" name="name" value="<?php echo $tenderr['name'];?>"
+											required>
+										<br>
+
+										<label for="beamp"><?php _e('Department'); ?> *</label>
+										<select class="form-control select2 select2-hidden-accessible" id="id_department" required
+											name="id_department" style="width: 100%;" tabindex="-1" aria-hidden="true">
+											<option value='0' <?php if($tenderr['id_department'] == 0) echo "selected"; ?>><?php echo "-"; ?>
+											</option>
+											<?php foreach ($dp as $item) { ?>
+											<option value='<?php echo $item['id']; ?>'
+												<?php if($item['id'] == $tenderr['id_department']) echo "selected"; ?>>
+												<?php echo $item['name']; ?>
+											</option>
+											<?php } ?>
+										</select>
+										<br>
+										<br>
+										<label for="id_pengadaan"><?php _e('Procurement Type'); ?> *</label>
+										<select class="form-control select2 select2-hidden-accessible" id="id_pengadaan" required
+											name="id_pengadaan" style="width: 100%;" tabindex="-1" aria-hidden="true">
+											<option value='0' <?php if($tenderr['id_pengadaan'] == 0) echo "selected"; ?>><?php echo "-"; ?>
+											</option>
+											<?php foreach ($pg as $item) { ?>
+											<option value='<?php echo $item['id']; ?>'
+												<?php if($item['id'] == $tenderr['id_pengadaan']) echo "selected"; ?>>
+												<?php echo $item['name']; ?>
+											</option>
+											<?php } ?>
+										</select>
+										<br>
+										<br>
+										<label for="alamat_gudang"><?php _e('Warehouse Address *'); ?></label>
+										<textarea class="form-control summernote" id="alamat_gudang"
+											name="alamat_gudang"><?php echo $tenderr['alamat_gudang'];?></textarea>
+
+										<label for="keterangan"><?php _e('Information'); ?></label>
+										<textarea class="form-control summernote" id="keterangan"
+											name="keterangan"><?php echo $tenderr['keterangan'];?></textarea>
+
+									</div>
+
+									<div class="col-md-6">
+										<label for="tgl_tender"><?php _e('Tender Date *'); ?></label>
+										<input type="date" class="form-control date" id="tgl_tender"
+											value="<?php echo $tenderr['tgl_tender'];?>" required name="tgl_tender"
+											value="<?php echo date('Y-m-d');?>">
+										<br>
+										<label for="tgl_kebutuhan"><?php _e('Requirement Date *'); ?></label>
+										<input type="date" class="form-control date" id="tgl_kebutuhan"
+											value="<?php echo $tenderr['tgl_kebutuhan'];?>" required name="tgl_kebutuhan"
+											value="<?php echo date('Y-m-d');?>">
+										<br>
+										<label for="deadline_offer"><?php _e('Dealine Offer *'); ?></label>
+										<input type="date" class="form-control date" id="deadline_offer"
+											value="<?php echo $tenderr['deadline_offer'];?>" required name="deadline_offer"
+											value="<?php echo date('Y-m-d');?>">
+										<br>
+										<label for="alamat_kirim"><?php _e('Shipping Address *'); ?></label>
+										<textarea class="form-control summernote" id="alamat_kirim"
+											name="alamat_kirim"><?php echo $tenderr['alamat_kirim'];?></textarea>
+
+									</div>
+									<div class="col-md-6">
+										<div class="box box-success">
+											<div class="box-header with-border">
+												<h3 class="box-title"><?php _e('Kategori'); ?></h3>
+												<div class="box-tools pull-right"><button type="button" class="btn btn-box-tool"
+														data-widget="collapse"><i class="fa fa-minus"></i></button></div>
+											</div>
+											<div class="box-body">
+												<div class="row">
+													<div class="form_container">
+														<?php foreach ($kategori as $item) { ?>
+														<div class="col-md-6">
+															<div class="box box-primary">
+																<div class="box-header">
+																	<h3 class="box-title"><?php echo $item['name']; ?></h3>
+																</div>
+																<div class="box-body">
+																	<?php
+															$subkategoris = $database->query("select * FROM subkategori where kategoriid=".$item['id']." order by id desc")->fetchAll();
+															foreach ($subkategoris as $item) { ?>
+
+																	<div class="checkbox">
+																		<label><input type="checkbox" name="kategori[]" id="kategori[]" <?php $tenderkategori  = $database->query("select * FROM tender where id=" . $_GET['id'] . " order by id desc")->fetchAll();
+																foreach ($tenderkategori as $dor) {
+															$tenderservices = unserialize ($dor['kategori']); ?> value="<?php echo $item['name']; ?>"
+																				<?php if(in_array($item['name'],$tenderservices)) echo "checked";  ?><?php }?>>
+																			<?php echo $item['name']; ?></label></div>
+																	<?php }?>
+																</div>
+
+															</div>
+														</div>
+														<?php } ?>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+								</div>
+
+								<input type="hidden" name="kategori[]" value="Null">
+								<input type="hidden" name="id" value="<?php echo $tenderr['id']; ?>">
+								<input type="hidden" name="action" value="editTender">
+								<input type="hidden" name="route" value="tender/tender/edit">
+								<input type="hidden" name="routeid" value="<?php echo $tenderr['id']; ?>">
+
+								<div class="col-sm-2"></div>
+								<div class="col-sm-8">
+									<button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+								</div>
+
+							</form><!-- /.form -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->
+<script src="template/assets/plugins/multifield/jquery.multifield.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$('.form-content').multifield({
+			section: '.group',
+			btnAdd: '#btnAdd',
+			btnRemove: '.btnRemove',
+		});
+	});
+	$(function() {
+		$('.date').datepicker({
+			format: 'yyyy-mm-dd',
+			clearBtn: 'true',
+			todayBtn: "linked",
+			todayHighlight: true,
+			weekStart: '<?php echo getConfigValue("week_start"); ?>',
+			autoclose: true
+		});
+	});
+</script>

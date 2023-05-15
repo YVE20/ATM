@@ -1,0 +1,153 @@
+<?php 
+$ticket = getRowById("tickets", $_GET['routeid']);
+$assetname = getSingleValue("assets", "name", $ticket['assetid']);
+?>
+
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title"><?php _e('Edit Component Reply '.$assetname); ?></h4></div>
+<div class="modal-body">
+
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="form-group">
+                <label for="component"><?php _e('Component'); ?> *</label>
+                <select class="form-control select2tag select2-hidden-accessible" id="component1" name="component1" style="width: 100%;" tabindex="-1" aria-hidden="true" multiple>                    
+                    <?php foreach ($components as $component) { 
+                        echo "<option value='".$component['name']."'"; 
+                        if(isset($componentid[0])){
+                        if($componentid[0]==$component['id']) echo " selected";
+                        }
+                        echo ">".$component['name']."</option>"; 
+                    } ?>
+                </select>                
+            </div>            
+        </div>
+        <div class="col-xs-8">
+            <div class="form-group">
+                <label for="name"><?php _e('Series Name'); ?> *</label>
+                <input type="text" class="form-control" id="name1" name="name1" value="<?php if(isset($series[0])) echo $series[0]; ?>">
+            </div>
+        </div>
+        <?php if(!isset($componentid[0])){?>
+        <input type="hidden" name="new1" value=true>
+        <?php }?>
+        <input type="hidden" name="history1" value="<?php echo $history[0]; ?>">        
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="form-group">                
+                <select class="form-control select2tag select2-hidden-accessible" id="component2" name="component2" style="width: 100%;" tabindex="-1" aria-hidden="true" multiple>                    
+                    <?php foreach ($components as $component) { 
+                        echo "<option value='".$component['name']."'"; 
+                        if(isset($componentid[1])){
+                        if($componentid[1]==$component['id']) echo " selected";
+                        }
+                        echo ">".$component['name']."</option>"; 
+                    } ?>
+                </select>
+            </div>            
+        </div>
+        <div class="col-xs-8">
+            <div class="form-group">                
+                <input type="text" class="form-control" id="name2" name="name2" value="<?php if(isset($series[1])) echo $series[1]; ?>">
+            </div>
+        </div>
+        <?php if(!isset($componentid[1])){?>
+        <input type="hidden" name="new2" value=true>
+        <?php }?>
+        <input type="hidden" name="history2" value="<?php echo $history[1]; ?>">        
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="form-group">                
+                <select class="form-control select2tag select2-hidden-accessible" id="component3" name="component3" style="width: 100%;" tabindex="-1" aria-hidden="true" multiple>                    
+                    <?php foreach ($components as $component) { 
+                        echo "<option value='".$component['name']."'"; 
+                        if(isset($componentid[2])){
+                        if($componentid[2]==$component['id']) echo " selected";
+                        }
+                        echo ">".$component['name']."</option>"; 
+                    } ?>
+                </select>
+            </div>            
+        </div>
+        <div class="col-xs-8">
+            <div class="form-group">                
+                <input type="text" class="form-control" id="name3" name="name3" value="<?php if(isset($series[2])) echo $series[2]; ?>">
+            </div>
+        </div>
+        <?php if(!isset($componentid[2])){?>
+        <input type="hidden" name="new3" value=true>
+        <?php }?>
+        <input type="hidden" name="history3" value="<?php echo $history[2]; ?>">        
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="form-group">                
+                <select class="form-control select2tag select2-hidden-accessible" id="component4" name="component4" style="width: 100%;" tabindex="-1" aria-hidden="true" multiple>                    
+                    <?php foreach ($components as $component) { 
+                        echo "<option value='".$component['name']."'"; 
+                        if(isset($componentid[3])){
+                        if($componentid[3]==$component['id']) echo " selected";
+                        }
+                        echo ">".$component['name']."</option>"; 
+                    } ?>
+                </select>
+            </div>            
+        </div>
+        <div class="col-xs-8">
+            <div class="form-group">                
+                <input type="text" class="form-control" id="name4" name="name4" value="<?php if(isset($series[3])) echo $series[3]; ?>">
+            </div>
+        </div>
+        <?php if(!isset($componentid[3])){?>
+        <input type="hidden" name="new4" value=true>
+        <?php }?>
+        <input type="hidden" name="history4" value="<?php echo $history[3]; ?>">        
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="form-group">                
+                <select class="form-control select2tag select2-hidden-accessible" id="component5" name="component5" style="width: 100%;" tabindex="-1" aria-hidden="true" multiple>                    
+                    <?php foreach ($components as $component) { 
+                        echo "<option value='".$component['name']."'"; 
+                        if(isset($componentid[4])){
+                        if($componentid[4]==$component['id']) echo " selected";
+                        }
+                        echo ">".$component['name']."</option>"; 
+                    } ?>
+                </select>
+            </div>            
+        </div>
+        <div class="col-xs-8">
+            <div class="form-group">                
+                <input type="text" class="form-control" id="name5" name="name5" value="<?php if(isset($series[4])) echo $series[4]; ?>">
+            </div>
+        </div>
+        <?php if(!isset($componentid[4])){?>
+        <input type="hidden" name="new5" value=true>
+        <?php }?>
+        <input type="hidden" name="history5" value="<?php echo $history[4]; ?>">        
+    </div>
+    
+
+<input type="hidden" name="action" value="editComponentReply">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<input type="hidden" name="replyid" value="<?php echo $_GET['replyid']; ?>">
+<input type="hidden" name="ticketid" value="<?php echo $_GET['routeid']; ?>">
+<input type="hidden" name="peopleid" value="<?php echo $liu['id']; ?>">
+<input type="hidden" name="assetid" value="<?php echo $ticket['assetid']; ?>">
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> <?php _e('Cancel'); ?></button>
+    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <?php _e('Create'); ?></button>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+            $(function() { $(".select2tag").select2({
+                tags: true
+            }); });  
+    
+</script>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>
+		<?php if(isset($pageTitle)) echo $pageTitle . " - "; ?>SBP</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="shortcut icon" href="template/assets/pbt.png" />
+	<link rel="apple-touch-icon" href="template/assets/pbt.png" />
+	<link rel="image_src" href="template/assets/pbt.png" />
+	<!-- Bootstrap 3.3.5 -->
+	<link href="template/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+	<!-- Font Awesome -->
+	<!--        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">-->
+	<link href="Font-Awesome-master/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+	<!-- Ionicons -->
+	<!--        <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">-->
+	<link rel="stylesheet" href="ionicons-master/ionicons.min.css">
+	<!-- DataTables -->
+	<link rel="stylesheet" href="template/assets/plugins/datatables/dataTables.bootstrap.css">
+
+	<link rel="stylesheet"
+		href="template/assets/plugins/datatables/extensions/FixedColumns/css/dataTables.fixedColumns.min.css">
+
+	<!-- Select2 -->
+	<link rel="stylesheet" href="template/assets/plugins/select2/select2.min.css">
+	<!-- iCheck for checkboxes and radio inputs -->
+	<link rel="stylesheet" href="template/assets//plugins/iCheck/all.css">
+	<!-- Theme style -->
+	<link href="template/assets/dist/css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+	folder instead of downloading all of them to reduce the load. -->
+	<link href="template/assets/dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+	<!-- Pace style -->
+	<link rel="stylesheet" href="template/assets/plugins/pace/pace.min.css">
+	<!-- Bootstrap Color Picker -->
+	<link rel="stylesheet" href="template/assets/plugins/colorpicker/bootstrap-colorpicker.min.css">
+	<!-- Date Picker -->
+	<link href="template/assets/plugins/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
+	<!-- Morris -->
+	<link rel="stylesheet" href="template/assets/plugins/morris.js/morris.css">
+	<!-- Time Picker -->
+	<link href="template/assets/plugins/timepicker/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
+	<!-- summernote wysihtml5 - text editor -->
+	<link href="template/assets/plugins/summernote/summernote.css" rel="stylesheet" type="text/css" />
+	<!-- bootstrap slider -->
+	<link rel="stylesheet" href="template/assets/plugins/bootstrap-slider/bootstrap-slider.min.css">
+
+	<!-- CUSTOM CSS -->
+	<link href="template/assets/custom.css" rel="stylesheet" type="text/css" />
+
+	<!-- jQuery 2.1.4 -->
+	<script src="template/assets/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+</head>
+
+<body class="hold-transition <?php echo $liu['theme']; ?> <?php echo $liu['layout']; ?> <?php if($liu['sidebar']=="
+	collapsed") echo "sidebar-collapse" ; ?> sidebar-mini">
+	<div class="wrapper">
+		<!-- header logo: style can be found in header.less -->
+		<header class="main-header">
+			<a href="?route=dashboard" class="logo">
+				<!-- mini logo for sidebar mini 50x50 pixels -->
+				<span class="logo-mini"><b><i class="fa fa-circle-o-notch"></i></b></span>
+				<!-- logo for regular state and mobile devices -->
+				<span class="logo-lg">
+					<?php echo getConfigValue("app_name"); ?></span>
+			</a>
+			<!-- Header Navbar: style can be found in header.less -->
+			<nav class="navbar navbar-static-top" role="navigation">
+				<!-- Sidebar toggle button-->
+				<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+					<span class="sr-only">
+						<?php _e('Toggle navigation'); ?></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<div class="navbar-custom-menu">
+					<ul class="nav navbar-nav">
+						<?php if(in_array("autorefresh",$perms)) { ?>
+						<!-- Autorefresh -->
+						<li class="dropdown notifications-menu">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-refresh"></i>
+								<?php if($liu['autorefresh'] > 0) { ?><span class="label label-success"><i
+										class="fa fa-check"></i></span>
+								<?php } ?></a>
+							<ul class="dropdown-menu">
+								<li class="header text-center">
+									<?php _e('Autorefresh dashboard, tickets lists and monitoring pages.'); ?>
+								</li>
+								<li>
+									<ul class="menu">
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=0"><i
+													class="fa <?php if($liu['autorefresh'] == 0) echo "
+														fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Disabled'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=30000"><i
+													class="fa <?php if($liu['autorefresh'] == 30000) echo "
+															fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 30 Seconds'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=60000"><i
+													class="fa <?php if($liu['autorefresh'] == 60000) echo "
+																fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 1 Minute'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=120000"><i
+													class="fa <?php if($liu['autorefresh'] == 120000) echo "
+																	fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 2 Minutes'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=300000"><i
+													class="fa <?php if($liu['autorefresh'] == 300000) echo "
+																		fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 5 Minutes'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=600000"><i
+													class="fa <?php if($liu['autorefresh'] == 600000) echo "
+																			fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 10 Minutes'); ?></a></li>
+										<li><a
+												href="?qa=setAutorefresh&reroute=<?php echo $route; ?>&routeid=<?php if(isset($_GET['id'])) echo $_GET['id']; ?>&section=<?php if(isset($_GET['section'])) echo $_GET['section']; ?>&autorefresh=900000"><i
+													class="fa <?php if($liu['autorefresh'] == 900000) echo "
+																				fa-dot-circle-o"; else echo "fa-circle-o" ; ?> text-blue"></i>
+												<?php _e('Every 15 Minutes'); ?></a></li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+						<?php } ?>
+						<li class="dropdown notifications-menu">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell-o"></i>
+
+							</a>
+							<ul class="dropdown-menu">
+								<li class="header">
+									<?php _e('Notifications'); ?>
+								</li>
+								<li>
+									<ul class="menu">
+
+									</ul>
+								</li>
+							</ul>
+						</li>
+
+						<!-- Quick Actions Menu -->
+						<li class="dropdown notifications-menu">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-star"></i></a>
+							<ul class="dropdown-menu">
+								<li class="header">
+									<?php _e('Quick actions'); ?>
+								</li>
+								<li>
+									<ul class="menu">
+										<!--
+<?php if((in_array(2, $catpeople)||$isAdmin)&& $liu['clientid']!=7) { ?>
+<li>
+<a href="#" onClick='showM("?modal=mutations/sj&reroute=mutations/beam");return false'
+data-toggle="modal">
+<i class="fa fa-exchange text-blue"></i>
+<?php _e('New Beam Mutation'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array(3, $catpeople)||$isAdmin) { ?>
+<li>
+<a href="#" onClick='showM("?modal=mutations/outpb&reroute=mutations/beam");return false'
+data-toggle="modal">
+<i class="fa fa-sign-out text-blue"></i>
+<?php _e('Process Plate Beam Mutation'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addAsset",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=mutations/outbeam&reroute=mutations/beam");return false'
+data-toggle="modal">
+<i class="fa fa-sign-out text-blue"></i>
+<?php _e('Out Beams Mutation'); ?>
+</a>
+</li>
+<?php } ?>                                 
+<?php if(in_array("addAsset",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=mutations/outbeampro&reroute=mutations/beam");return false'
+data-toggle="modal">
+<i class="fa fa-sign-out text-blue"></i>
+<?php _e('Out Beams Project Mutation'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addAsset",$perms)) { ?>
+<li>
+<a href="?route=inventory/assets/create">
+<i class="fa fa-barcode text-aqua"></i>
+<?php _e('New Asset'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addLicense",$perms)) { ?>
+<li>
+<a href="?route=inventory/licenses/create">
+<i class="fa fa-certificate text-green"></i>
+<?php _e('New License'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addClient",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=clients/add&reroute=clients&routeid=&section=");return false'
+data-toggle="modal">
+<i class="fa fa-briefcase text-blue"></i>
+<?php _e('New Client'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addTicket",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=tickets/add&reroute=tickets/ar&routeid=&section=");return false'
+data-toggle="modal">
+<i class="fa fa-tag text-blue"></i>
+<?php _e('New Ticket'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("addIssue",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=issues/add&reroute=issues/active&routeid=&section=");return false'
+data-toggle="modal">
+<i class="fa fa-tasks text-blue"> </i>
+<?php _e('New Issue'); ?>
+</a>
+</li>
+<?php } ?>
+<?php if(in_array("uploadFile",$perms)) { ?>
+<li>
+<a href="#" onClick='showM("?modal=files/uploadAll&reroute=dashboard&routeid=&section=");return false'
+data-toggle="modal">
+<i class="fa fa-upload text-blue"></i>
+<?php _e('Upload File'); ?>
+</a>
+</li>
+<?php } ?>-->
+									</ul>
+								</li>
+							</ul>
+						</li>
+
+						<!-- User Account: style can be found in dropdown.less -->
+						<li class="dropdown user user-menu">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<img src="<?php echo getGravatar($liu['email']," 84"); ?>" class="user-image" alt="User
+		Image" />
+								<span class="hidden-xs">
+									<?php echo $liu['name']; ?> <i class="caret"></i></span>
+							</a>
+							<ul class="dropdown-menu">
+								<!-- User image -->
+								<li class="user-header">
+									<img src="<?php echo getGravatar($liu['email']," 128"); ?>" class="img-circle" />
+									<p>
+										<?php echo $liu['name']; ?> -
+										<?php echo $liu['title']; ?>
+										<small>
+											<?php echo $liu['email']; ?></small>
+									</p>
+								</li>
+								<!-- Menu Footer-->
+								<li class="user-footer">
+									<div class="pull-left">
+										<a href="?route=profile" class="btn btn-default btn-flat">
+											<?php _e('Profile'); ?></a>
+									</div>
+									<div class="pull-right">
+										<a href="?route=signout" class="btn btn-default btn-flat">
+											<?php _e('Sign Out'); ?></a>
+									</div>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+		</header>
+
+		<aside class="main-sidebar">
+			<section class="sidebar">
+				<!-- Sidebar user panel -->
+				<div class="user-panel">
+					<div class="pull-left image">
+						<img src="<?php echo getGravatar($liu['email']," 45"); ?>" class="img-circle" alt="User Image"
+							style="max-height:45px;max-width:45px;">
+					</div>
+					<div class="pull-left info">
+						<p><?php echo $liu['name']; ?></p>
+						<?php if($isAdmin) { ?>
+						<a href="#"><i class="fa fa-circle text-success"></i><?php _e('Online'); ?></a>
+						<?php } ?>
+						<?php if(!$isAdmin) { ?>
+						<a href="?route=profile">[ <span class="text-uppercase">
+								<?php echo getSingleValue("clients","name",$liu['clientid']); ?></span> ]</a>
+						<?php } ?>
+					</div>
+				</div>
+				<?php if(in_array("search",$perms)) { ?>
+				<!-- search form -->
+				<form method="get" class="sidebar-form">
+					<div class="input-group">
+						<input type="text" name="q" class="form-control" placeholder="<?php _e('Search...'); ?>"
+							required />
+						<input type="hidden" name="route" value="search" />
+						<span class="input-group-btn">
+							<button type="submit" name="search" id="search-btn" class="btn btn-flat"><i
+									class="fa fa-search"></i></button>
+						</span>
+					</div>
+				</form>
+				<?php } ?>
+				<!-- /.search form -->
+				<!-- sidebar menu: : style can be found in sidebar.less -->
+				<ul class="sidebar-menu">
+					<li class="header">
+						<?php _e('MAIN NAVIGATION'); ?>
+					</li>
+
+					<li <?php if(strpos($route,'dashboard') !==false) echo 'class="active"' ; ?>>
+						<a href="?route=dashboard">
+							<i class="fa fa-dashboard fa-fw"></i> <span>
+								<?php _e('Dashboard'); ?></span>
+						</a>
+					</li>
+
+					<?php 
+					$vendorid =  $database->query("SELECT id FROM vendor where id_people=". $liu['id'])->fetchAll();
+					foreach ($vendorid as $item) { ?>
+					<?php }?>
+					<?php
+					if($liu['id']==1 || $liu['roleid']==3 || $liu['id']==Null){
+					if(in_array("viewVendorSupplier",$perms) || true) { ?>
+						<li <?php if(strpos($route,'vendor') !==false) echo 'class="active"' ; ?>>
+							<a href="?route=vendor/vendor">
+								<i class="fa fa-user fa-fw"></i><span>
+									<?php _e('Vendor Supplier'); ?></span>
+							</a>
+						</li>
+						<?php }
+					} else {
+						if(in_array("viewVendorSupplier",$perms) || true) { ?>
+						<li <?php if(strpos($route,'vendor') !==false) echo 'class="active"' ; ?>>
+							<a href='?route=vendor/manage/manage&id=<?php echo $item['id']; ?>'>
+								<i class="fa fa-user fa-fw"></i> <span>
+									<?php _e('Vendor'); ?></span>
+							</a>
+						</li>
+						<?php }
+					}?>
+
+					<?php 
+					$tenderid =  $database->query("SELECT * FROM tendervendor where id_vendor=". $liu['id'])->fetchAll();
+					foreach ($tenderid as $item) { ?>
+					<?php }?>
+						<?php 
+						if($liu['id']==1 || $liu['roleid']==3 || $liu['id']==Null){
+						if(in_array("viewTender",$perms) || true) { ?>
+							<li <?php if(strpos($route,'tender') !==false) echo 'class="active"' ; ?>>
+								<a href="?route=tender/tender">
+									<i class="fa fa-newspaper-o fa-fw"></i> <span>
+										<?php _e('Tender'); ?></span>
+								</a>
+							</li>
+							<?php }
+						}else{
+							if(in_array("viewTender",$perms) || true) { ?>
+								<li <?php if(strpos($route,'tender') !==false) echo 'class="active"' ; ?>>
+									<a href="?route=tender/tender&id=<?php echo $item['id']; ?>">
+										<i class="fa fa-newspaper-o fa-fw"></i> <span>
+											<?php _e('Tender'); ?></span>
+									</a>
+								</li>
+								<?php } }
+							?>
+
+					<?php if(in_array("viewPeople",$perms)) { ?>
+						<li class="treeview<?php if(strpos($route,'master-data') !== false) echo ' active'; ?>">
+							<a href="#">
+								<i class="fa fa-folder fa-fw"></i> <span>
+									<?php _e('Master Data'); ?></span>
+								<i class="fa fa-angle-left pull-right"></i>
+							</a>
+							<ul class="treeview-menu">
+								
+							
+								<?php if(in_array("manageData",$perms)) { ?>
+									<li
+										class="treeview<?php if(strpos($route,'master-data/vendor') !== false) echo ' active'; ?>">
+										<a href="#"><i class="fa fa-folder-open"></i>
+											<?php _e('Vendor'); ?> <i class="fa fa-angle-left pull-right"></i></a>
+										<ul class="treeview-menu">
+											
+											<?php if(in_array("viewJob",$perms) || true) { ?>
+											<li <?php if($route=="master-data/vendor/job" ) echo 'class="active"'; ?>>
+												<a href="?route=master-data/vendor/job">
+													<i class="fa fa-angle-double-right"></i><span><?php _e('Job'); ?></span>
+												</a></li>
+											<?php }?>
+											<?php if(in_array("viewKategori",$perms) || true) { ?>
+												<li
+													<?php if($route=="master-data/vendor/kategori" ) echo 'class="active"'; ?>>
+													<a href="?route=master-data/vendor/kategori">
+														<i
+															class="fa fa-angle-double-right"></i><span><?php _e('Kategori'); ?></span>
+													</a></li>
+												<?php }?>
+												<?php if(in_array("viewBank",$perms) || true) { ?>
+													<li
+														<?php if($route=="master-data/vendor/bank" ) echo 'class="active"'; ?>>
+														<a href="?route=master-data/vendor/bank">
+															<i
+																class="fa fa-angle-double-right"></i><span><?php _e('Bank'); ?></span>
+														</a></li>
+													<?php }?>
+													<?php if(in_array("viewGenerateKey",$perms) || true) { ?>
+														<li <?php if(strpos($route,'master-data/vendor/generatekey') !==false) echo 'class="active"' ; ?>><a
+																href="?route=master-data/vendor/generatekey"><i
+																class="fa fa-angle-double-right"></i><span><?php _e('Generate Key'); ?></span>
+														</a></li>
+														<?php } ?>
+										</ul>
+									</li>
+									<?php } ?>
+	
+									<?php if(in_array("manageData",$perms)) { ?>
+										<li class="treeview<?php if(strpos($route,'master-data') !== false) echo ' active'; ?>">
+											<a href="#"><i class="fa fa-folder-open"></i>
+												<?php _e('Tender'); ?> <i class="fa fa-angle-left pull-right"></i></a>
+											<ul class="treeview-menu">
+												<?php if(in_array("viewProcurementType",$perms) || true) { ?>
+												<li <?php if($route=="master-data/tender/pengadaan" ) echo 'class="active"'; ?>><a
+														href="?route=master-data/tender/pengadaan">
+														<i class="fa fa-angle-double-right"></i><span><?php _e('Procurement Type'); ?></span>
+													</a></li>
+												<?php }?>
+												<?php if(in_array("viewDepartment",$perms) || true) { ?>
+												<li <?php if($route=="master-data/tender/department" ) echo 'class="active"'; ?>><a
+														href="?route=master-data/tender/department">
+														<i class="fa fa-angle-double-right"></i><span><?php _e('Department'); ?></span>
+													</a></li>
+												<?php }?>
+											</ul>
+										</li>
+										<?php } ?>
+	
+										<?php if(in_array("manageData",$perms)) { ?>
+											<li class="treeview<?php if(strpos($route,'master-data/size-data') !== false) echo ' active'; ?>">
+												<a href="#"><i class="fa fa-folder-open"></i>
+													<?php _e('Size Data'); ?> <i class="fa fa-angle-left pull-right"></i></a>
+												<ul class="treeview-menu">
+													<?php if(in_array("viewSizeCat",$perms) || true) { ?>
+													<li <?php if($route=="master-data/size-data/sizecat" ) echo 'class="active"'; ?>><a
+															href="?route=master-data/size-data/sizecat">
+															<i class="fa fa-angle-double-right"></i><span><?php _e('Size Categories'); ?></span>
+														</a></li>
+													<?php }?>
+													<?php if(in_array("viewSize",$perms) || true) { ?>
+													<li <?php if($route=="master-data/size-data/size" ) echo 'class="active"'; ?>><a
+															href="?route=master-data/size-data/size">
+															<i class="fa fa-angle-double-right"></i><span><?php _e('Size'); ?></span>
+														</a></li>
+													<?php }?>
+												</ul>
+											</li>
+											<?php } ?>
+	
+					</ul>
+					</li>
+					<?php } ?>
+
+
+				<?php if(in_array("viewPeople",$perms)) { ?>
+				<li class="treeview<?php if(strpos($route,'people') !== false) echo ' active'; ?>">
+					<a href="#">
+						<i class="fa fa-users fa-fw"></i> <span>
+							<?php _e('People'); ?></span>
+						<i class="fa fa-angle-left pull-right"></i>
+					</a>
+					<ul class="treeview-menu">
+						<?php if(in_array("viewUsers",$perms)) { ?>
+						<li <?php if(strpos($route,'people/users') !==false) echo 'class="active"' ; ?>><a
+								href="?route=people/users"><i class="fa fa-angle-double-right"></i>
+								<?php _e('Users'); ?></a></li>
+						<?php } ?>
+						<?php if(in_array("viewStaff",$perms)) { ?>
+						<li <?php if(strpos($route,'people/staff') !==false) echo 'class="active"' ; ?>><a
+								href="?route=people/staff"><i class="fa fa-angle-double-right"></i>
+								<?php _e('Staff'); ?></a></li>
+						<?php } ?>
+						<?php if(in_array("viewRoles",$perms)) { ?>
+						<li <?php if(strpos($route,'people/roles') !==false) echo 'class="active"' ; ?>><a
+								href="?route=people/roles"><i class="fa fa-angle-double-right"></i>
+								<?php _e('Roles'); ?></a></li>
+						<?php } ?>
+						<?php if(in_array("viewContacts",$perms)) { ?>
+						<li <?php if(strpos($route,'people/contacts') !==false) echo 'class="active"' ; ?>><a
+								href="?route=people/contacts"><i class="fa fa-angle-double-right"></i>
+								<?php _e('Contacts'); ?></a></li>
+						<?php } ?>
+					</ul>
+				</li>
+				<?php } ?>
+
+				<?php if(in_array("viewSystem",$perms)) { ?>
+				<li class="treeview<?php if(strpos($route,'system/') !== false) echo ' active'; ?>">
+					<a href="#">
+						<i class="fa fa-cogs fa-fw"></i> <span>
+							<?php _e('System'); ?></span>
+						<i class="fa fa-angle-left pull-right"></i>
+					</a>
+					<ul class="treeview-menu">
+						<?php if(in_array("viewPReplies",$perms)) { ?>
+						<li <?php if($route=="system/preplies" ) echo 'class="active"' ; ?>><a
+								href="?route=system/preplies"><i class="fa fa-angle-double-right"></i>
+								<?php _e('Predefined Replies'); ?></a></li>
+						<?php } ?>
+						<?php if(in_array("viewLogs",$perms)) { ?>
+						<li <?php if($route=="system/logs" ) echo 'class="active"' ; ?>><a href="?route=system/logs"><i
+									class="fa fa-angle-double-right"></i>
+								<?php _e('System Logs'); ?></a></li>
+						<?php } ?>
+						<?php if(in_array("manageSettings",$perms)) { ?>
+						<li <?php if($route=="system/settings" ) echo 'class="active"' ; ?>><a
+								href="?route=system/settings"><i class="fa fa-angle-double-right"></i>
+								<?php _e('System Settings'); ?></a></li>
+						<?php } ?>
+					</ul>
+				</li>
+				<?php } ?>
+				</ul>
+			</section>
+			<!-- /.sidebar -->
+		</aside>
+		<!-- Morris.js charts -->
+		<script src="template/assets/plugins/raphael/raphael.min.js"></script>
+		<script src="template/assets/plugins/morris.js/morris.min.js"></script>
+		<!-- FastClick -->
+		<script src="template/assets/plugins/fastclick/lib/fastclick.js"></script>

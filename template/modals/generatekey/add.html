@@ -1,0 +1,41 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+<h4 class="modal-title"><?php _e('Generate Link'); ?></h4>
+</div>
+
+<?php
+$s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+$protocol = strleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/") . $s;
+$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":" . $_SERVER["SERVER_PORT"]);
+
+$bytes = openssl_random_pseudo_bytes(16, $cstrong);
+$hex   = bin2hex($bytes);
+$url = $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . "/atm/?route=signin&key=" . $hex;
+
+?>
+<div class="modal-body">
+  <div class="form-group">
+    <div class="form-group">
+      <label for="key">
+        <?php _e('KEY'); ?> *</label>
+      <input type="text" class="form-control" autocomplete="off" id="key" name="key" value="<?php echo $hex ?>" readonly>
+      </div>
+    <label for="link">
+      <?php _e('LINK'); ?> *</label>
+    <input type="link" class="form-control" autocomplete="off" id="link" name="link" value="<?php echo $url ?>" readonly>
+    </div>
+                          
+<input type="hidden" name="action" value="addVendorgeneratekey">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+<?php _e('Cancel'); ?></button>
+<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <?php _e('Create'); ?></button>
+</div>

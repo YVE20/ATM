@@ -1,0 +1,86 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1 class="pull-left"><?php _e('KATEGORI'); ?> <small> <?php _e('Manage Kategori'); ?></small></h1>
+		<?php if($isAdmin) { 
+			if(in_array("addKategori",$perms) || true) { ?>
+		<div class="pull-right"><a
+				onClick='showM("?modal=kategori/add&reroute=master-data/vendor/kategori");return false'
+				data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i>
+				<?php _e('NEW KATEGORI'); ?></a></div>
+		<div style="clear:both"></div>
+		<?php }
+		}?>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?></div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<div class="box-body">
+						<div class="table-responsive">
+							<table id="dataTablesFull" class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>
+
+											<center><?php _e('Name'); ?></center>
+										</th>
+										<th style="width:90px;" class="text-right"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($kategoris as $item) { ?>
+									<tr>
+										<td align="center">
+											<center><?php if(in_array("manage",$perms) || true) { ?><a
+													href='?route=master-data/vendor/vendor/managekategori&id=<?php echo $item['id']; ?>'><?php echo $item['name']; ?></a><?php } else { echo $pengadaan['name']; }?></center>
+									</td>
+										<td>
+											<div class='pull-right'>
+												<?php if($isAdmin){
+												if(in_array("editKategori",$perms) || true) { ?>
+												<a href="#"
+													onClick='showM("index.php?modal=kategori/edit&reroute=master-data/vendor/kategori&id=<?php echo $item['id']; ?>&section=");return false'
+													class='btn btn-default btn-xs'><i class='fa fa-edit'></i></a>&nbsp;
+												<?php }
+												if(in_array("deleteKategori",$perms) || true) {?>
+												<a href="#"
+													onClick='showM("index.php?modal=kategori/delete&reroute=master-data/vendor/kategori&id=<?php echo $item['id']; ?>&section=");return false'
+													class='btn btn-danger btn-xs'><i class='fa fa-trash-o'></i></a>
+												<?php }
+											} else {
+											if($liu['clientid']==4){
+											if(in_array("editKategori",$perms) || true) { ?>
+												<a href="#"
+													onClick='showM("index.php?modal=kategori/edit&reroute=master-data/vendor/kategori&id=<?php echo $item['id']; ?>&section=");return false'
+													class='btn btn-default btn-xs'><i class='fa fa-edit'></i></a>&nbsp;
+												<?php }
+											if(in_array("deleteKategori",$perms) || true) {?>
+												<a href="#"
+													onClick='showM("index.php?modal=kategori/delete&reroute=master-data/vendor/kategori&id=<?php echo $item['id']; ?>&section=");return false'
+													class='btn btn-danger btn-xs'><i class='fa fa-trash-o'></i></a>
+												<?php }
+										}
+									}?>
+											</div>
+										</td>
+									</tr>
+									<?php } ?>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->

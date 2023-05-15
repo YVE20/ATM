@@ -1,0 +1,37 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+<h4 class="modal-title"><?php _e('Edit Item Tender'); ?>
+</div>
+<div class="modal-body">
+
+    <div class="form-group">
+      <label for="status">
+          <?php _e('Status'); ?> *</label>
+      <select class="form-control" name="status" id="status" style="width: 100%;" tabindex="-1" aria-hidden="true">
+        <option value="In Progress"><?php echo "In Progress"; ?></option>
+        <option value="Open"><?php echo "Open"; ?></option>
+        <option value="Complete"><?php echo "Complete"; ?></option>
+        <option value="Cancelled"><?php echo "Cancelled"; ?></option>
+      </select>
+      </div>
+    <!-- <div class="form-group">
+    <label for="pesan"><?php _e('Info'); ?></label>
+    <textarea class="form-control" rows="2" placeholder="Infomation" id="pesan" name="pesan" ></textarea>
+</div> -->
+
+<input type="hidden" name="id_tender" value="<?php echo $_GET['routeid']; ?>">
+<input type="hidden" name="action" value="editStatusTender">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+<?php _e('Cancel'); ?></button>
+<button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+</div>

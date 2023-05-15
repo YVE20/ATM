@@ -1,0 +1,209 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+    <style>
+        @page {
+            size: A4 portrait;
+        }
+
+        @media print {
+
+            .table-bordered,
+            .table-bordered>thead>tr>th,
+            .table-bordered>tbody>tr>td {
+                border: 1px solid black !important;
+            }
+
+        }
+
+        .backgrey {
+            background-color: #ccc !important;
+        }
+
+        body {
+            font-family: 'Times New Roman';
+            font-size: 12;
+            -webkit-print-color-adjust: exact;
+
+        }
+
+        p {
+            text-align: justify;
+        }
+
+        table {
+            border: 0px;
+            width: 100%;
+        }
+
+        .table-bordered,
+        .table-bordered>thead>tr>th,
+        .table-bordered>tbody>tr>td {
+            border: 1px solid black;
+        }
+
+        .table-bordered {
+            border-collapse: collapse;
+        }
+
+        .table-center {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+    <!-- Main content -->
+    <section class="content">
+        <section class="invoice">
+            <div class="row">
+                <div class="col-xs-12">
+                    <br><br><br>
+                    <div>
+                        <span>Nomor: <?= $letter['no_support_letter'] ?></span>
+                        <span style="float: right">Kudus, <?= tgl_indo($letter['date']) ?></span>
+                    </div>
+                    <br>
+                    <p>
+                        Kepada Yth.,<br>
+                        <b>
+                            <?= nl2br($letter['job_owner']) ?><br>
+                            <?= nl2br($letter['job_owner_address']) ?>
+                        </b>
+                    </p>
+
+                    <p>
+                        Perihal: <b>Surat Dukungan</b>
+                    </p>
+
+                    <div>
+                        Yang bertanda tangan di bawah ini:
+                    </div>
+
+                    <table style="margin-left: 50px">
+                        <thead>
+                            <tr>
+                                <th style="width: 35mm;"></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nama</td>
+                                <td>: Vivit Dwi Hermawan</td>
+                            </tr>
+                            <tr>
+                                <td>Jabatan</td>
+                                <td>: GENERAL Manager</td>
+                            </tr>
+                            <tr>
+                                <td>Perusahaan</td>
+                                <td>: PT SARANA BANGUN PUSAKA</td>
+                            </tr>
+                            <tr>
+                                <td>Alamat</td>
+                                <td>: Jl. AKBP. Agil Kusumadya 203, Kudus, Jawa Tengah</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-block-start: 5px; margin-block-end: 5px">Menjalankan jabatan tersebut sebagai
+                        perwakilan
+                        perusahaan produsen marka jalan dan guardrail yang didasarkan Surat Rekomendasi Direktorat
+                        Jenderal
+                        Perhubungan Darat:</p>
+                    <table class="table table-bordered table-center table-responsive">
+                        <thead class="backgrey">
+                            <th>
+                                <center>No</center>
+                            </th>
+                            <th>
+                                <center>Rekomendasi</center>
+                            </th>
+                            <th>
+                                <center>Tanggal Terbit</center>
+                            </th>
+                            <th>
+                                <center>Nomor</center>
+                            </th>
+                            <th>
+                                <center>Klasifikasi</center>
+                            </th>
+                        </thead>
+                        <tbody>
+                            <td>1</td>
+                            <td><?= $database->get("tdbu", "nickname", ["id" => $letter['tdbuid']]); ?></td>
+                            <td><?= tgl_indo($database->get("tdbu", "date", ["id" => $letter['tdbuid']])); ?></td>
+                            <td><?= $database->get("tdbu", "no_document", ["id" => $letter['tdbuid']]); ?></td>
+                            <td><?= $database->get("tdbu", "classification_of_fields", ["id" => $letter['tdbuid']]); ?>
+                            </td>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 10px">
+                        Dengan ini memberikan dukungan penuh kepada:
+                    </div>
+
+                    <table style="margin-left: 50px">
+                        <thead>
+                            <tr>
+                                <th style="width: 35mm;"></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nama Perusahaan</td>
+                                <td>: <?php foreach ($relasi as $a) { echo $a['TITLE1']." ".$a['NAMA_DI_FAKTUR'];}?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Nama Direktur</td>
+                                <td>: <?= $letter['relasi_person']?></td>
+                            </tr>
+                            <tr>
+                                <td>Alamat</td>
+                                <td>: <?= $letter['relasi_address']?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p style="text-indent: 50px; margin-top: 10px; margin-bottom: 0px;">
+                        Memberikan dukungan untuk mengikuti pekerjaan <b><?= $letter['job'] ?>.</b> Kami akan
+                        memberikan
+                        <b>dukungan penuh</b> dan <b>jaminan suplai</b>
+                        ini atas keaslian barang dan kualitas barang, jaminan ketersediaan barang, Jaminan/Garansi
+                        spare part
+                        (suku cadang) untuk 1 (satu) tahun operasional.
+                    </p>
+                    <p style="text-indent: 50px; margin-top: 5px;">
+                        Demikian Surat Dukungan ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan berlaku
+                        selama perusahaan tersebut dalam pelaksanaannya menggunakan produk <b>PT. SARANA BANGUN
+                            PUSAKA</b>
+                        sebagai
+                        perusahaan pendukung serta surat ini berlaku sampai dengan selesainya pekerjaan tersebut di
+                        atas.
+                    </p>
+
+                    <div>Perusahaan Pendukung</div>
+                    <div><b>PT. SARANA BANGUN PUSAKA</b></div>
+
+                    <div style="text-decoration: underline; margin-top: 27mm;">
+                        <b>Vivit Dwi Hermawan</b>
+                    </div>
+                    <span>General Manager</span>
+                </div>
+            </div>
+
+            <!-- this row will not appear when printing -->
+            <div class="row no-print">
+                <div class="col-xs-12">
+                    <button onClick="window.print();" class="btn btn-default btn-sm pull-right"><i
+                            class="fa fa-print"></i>
+                        <?php _e('Print'); ?>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+        </section>
+    </section>
+</aside>
+
+<!-- Main content -->

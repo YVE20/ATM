@@ -1,0 +1,399 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+
+    <!-- Main content -->
+    <section class="content">
+        <section class="invoice">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <img src="http://<?= $_SERVER['SERVER_NAME'] ?>/uploads/img/LOGO-SBP.png" height="35"
+                                width="80">
+                        </div>
+                        <div class="col-xs-9">
+                            <div class="row header-title">
+                                LAPORAN MINGGUAN
+                            </div>
+                            <div class="row header-title">
+                                PENGGUNAAN OPERASIONAL PROYEK
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 20px;">
+                        <div class="col-xs-9">
+                            <div class="row">
+                                <div class="col-xs-4 subheader-text">NAMA PROYEK</div>
+                                <div class="col-xs-8 subheader-text">: <?= $project['name'] ?></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 subheader-text">NO DAN TANGGAL KONTRAK</div>
+                                <div class="col-xs-8 subheader-text">: <?= $project['tgl_kontrak'] ?></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 subheader-text">PEMBERI KERJA</div>
+                                <div class="col-xs-8 subheader-text">: <?= $project['pemberi_kerja'] ?></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 subheader-text">PELAKSANAAN</div>
+                                <div class="col-xs-8 subheader-text">: <?= $project['waktu_pelaksanaan'] ?></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 subheader-text">LOKASI</div>
+                                <div class="col-xs-8 subheader-text">: <?= $project['lokasi_proyek'] ?></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="row subheader-text">BULAN:
+                                <?= formatDateIntervalMonth($start_date, $end_date) ?></div>
+                            <div class="row subheader-text">PERIODE MINGGU: <?= $week_period ?></div>
+                            <div class="row subheader-text">TGL: <?= formatDateInterval($start_date, $end_date) ?></div>
+                        </div>
+                    </div>
+                    <table border="1" style="width: 100%; margin-top: 20px;">
+                        <thead>
+                            <th style="width: 8%">TANGGAL</th>
+                            <th style="width: 4%">NO</th>
+                            <th style="width: 30%">JENIS BIAYA</th>
+                            <th style="width: 5%">KMA</th>
+                            <th style="width: 5%">Qty</th>
+                            <th style="width: 5%">Satuan</th>
+                            <th style="width: 8%">Harga Satuan</th>
+                            <th style="width: 10%">KAS KECIL</th>
+                            <th style="width: 10%">KREDIT</th>
+                            <th style="width: 10%">SALDO</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5">SALDO TANGGAL <?= tgl_indo($start_date->format('Y-m-d')) ?></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right"><?= number_format($operational_budget['last_balance']) ?></td>
+                            </tr>
+                            <?php 
+                            $last_balance = $operational_budget['last_balance'];
+                            $bon_amount = $operational_budget['last_balance'];
+                            $bon_lastbalance = $operational_budget['last_balance'];
+                             ?>
+                            <?php $operational_budget = $operational_budget['transactions_per_date']; ?>
+                            <?php for ($date =clone $start_date; $date <= $end_date; $date->modify('+1 day')): ?>
+                            <?php $date_str = $date->format('Y-m-d'); ?>
+                            <tr>
+                                <td><?= $date->format('d/m/Y') ?></td>
+                                <td></td>
+                                <td colspan="5"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right"><?= number_format($last_balance, 0) ?></td>
+                            </tr>
+
+                            <?php if (! array_key_exists($date_str, $operational_budget)): ?>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" class="bold-red">JUMLAH TOTAL</td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right bold-red"><?= number_format($last_balance) ?></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" class="bold-black">SALDO</td>
+                                <td></td>
+                                <td></td>
+                                <td class="bold-black text-right"><?= number_format($last_balance) ?></td>
+                            </tr>
+                            <?php else: ?>
+                            <?php $day_transaction = $operational_budget[$date_str]; ?>
+
+                            <?php if ($day_transaction['debit'] > 0): ?>
+                            <?php 
+                            $bon_amount = $bon_amount + $day_transaction['debit'];
+                            ?>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" class="bold-black">TARIK TUNAI</td>
+                                <td class="text-right bold-red"><?= number_format($day_transaction['debit']) ?></td>
+                                <td></td>
+                                <td class="text-right"><?= number_format($last_balance + $day_transaction['debit']) ?>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+
+                            <?php foreach ($day_transaction['credits'] as $d => $credits): ?>
+                            <?php foreach ($credits as $idx => $credit): ?>
+                            <tr>
+                                <?php if ($idx === 0): ?>
+                                <td rowspan="<?= count($credits) ?>" class="bold-red">
+                                    <?php if ($d !== $date_str): ?>
+                                    <?= "EXS" . date_create($d)->format('d/m/y') ?>
+                                    <?php endif; ?>
+                                </td>
+                                <?php endif; ?>
+                                <td><?= $idx + 1 ?></td>
+                                <td class="text-left"><?= $credit['name'] ?></td>
+                                <td><?= $credit['budget_code'] ?></td>
+                                <td><?= number_format($credit['qty'], 2) ?></td>
+                                <td><?= $credit['unit_name'] ?></td>
+                                <td>
+                                    <span style="float: left">Rp</span>
+                                    <span style="float: right"><?= number_format($credit['unit_price'], 0) ?></span>
+
+                                </td>
+                                <td></td>
+                                <td class="text-right"><?= number_format($credit['credit'], 0) ?></td>
+                                <td class="text-right"><?= number_format($credit['balance'], 0) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endforeach; ?>
+
+                            <?php $last_balance = $day_transaction['final_balance']; ?>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" class="bold-red">JUMLAH TOTAL</td>
+                                <td></td>
+                                <td class="text-right bold-red"><?= number_format($day_transaction['total_credit']) ?>
+                                </td>
+                                <td class="text-right bold-red"><?= number_format($last_balance) ?></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" class="bold-black">SALDO</td>
+                                <td></td>
+                                <td></td>
+                                <td class="bold-black text-right"><?= number_format($last_balance) ?></td>
+                            </tr>
+
+                            <?php endif; ?>
+                            <?php endfor; ?>
+
+                            <tr>
+                                <td colspan="7" class="bold-black">TOTAL PENGELUARAN PER TGL
+                                    <?= formatDateInterval($start_date, $end_date) ?></td>
+                                <td class="text-right">
+                                    <?= number_format(array_sum(array_column($operational_budget, 'debit'))) ?></td>
+                                <td class="text-right"><?= number_format($total_spending) ?></td>
+                                <td class="text-right"><?= number_format($last_balance) ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="7" class="bold-black">Grand Total</td>
+                                <td class="text-right">
+                                    <?= number_format(array_sum(array_column($operational_budget, 'debit'))+$bon_lastbalance) ?>
+                                </td>
+                                <td class="text-right">
+                                    <?= number_format($total_spending); $real_amount = $total_spending; ?></td>
+                                <td class="text-right"><?= number_format($last_balance) ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <!--<div class="row signature">
+                        <div class="col-xs-3">
+                            <div>Persetujuan</div>
+                            <div style="margin-top: 60px">(VIVIT D.H.)</div>
+                            <div>GENERAL MANAGER</div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div>Persetujuan</div>
+                            <div style="margin-top: 60px">(SISKA H.)</div>
+                            <div>KEUANGAN</div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div>Mengetahui</div>
+                            <div style="margin-top: 60px">(<?php echo $pimpro_name;?>)</div>
+                            <div>KEPALA PROYEK</div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div>DIBUAT</div>
+                            <div style="margin-top: 60px">
+                                (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+                            </div>
+                            <div>KASIR</div>
+                        </div>
+                    </div>-->
+                    <table style="width: 100%;">
+                        <thead>
+                            <th colspan=" 2">
+                                <h5><b>PERSETUJUAN</b></h5>
+                                <br><br><br><br><br><br>
+                            </th>
+                            <center>
+                                <th>
+                                    <h5><b>MENGETAHUI</b></h5>
+                                    <br><br><br><br><br><br>
+                                </th>
+                            </center>
+                            <center>
+                                <th>
+                                    <h5><b>DIBUAT</b></h5>
+                                    <br><br><br><br><br><br>
+                                </th>
+                            </center>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="2">
+                                    <font size="2"><b>VIVIT D.H.</b><br><b>GENERAL MANAGER</b></font>
+                                </td>
+                                <td rowspan="2">
+                                    <font size="2"><b>SISKA H</b><br><b>KEUANGAN</b></font>
+                                </td>
+                                <td rowspan="2">
+                                    <font size="2"><b><?= $pimpro_name;?></b><br><b>KEPALA PROYEK</b></font>
+                                </td>
+                                <td rowspan="2">
+                                    <font size="2">
+                                        <b>(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</b><br><b>KASIR</b>
+                                    </font>
+                                </td>
+                            </tr>
+                            <!--<tr>
+                                <td><h5><b>GENERAL MANAGER</b></h5></td>
+                                <td><h5><b>KEUANGAN</b></h5></td>
+                                <td><h5><b>KEPALA PROYEK</b></h5></td>
+                                <td><h5><b>KASIR</b></h5></td>
+                            </tr>-->
+                        </tbody>
+                        <tfoot>
+
+                        </tfoot>
+                    </table>
+                    <br>
+                    No DOK : JDK.........................
+                    <div class="row">
+                        <div class="col-xs-9">
+                            <table border="1" style="margin-top: 1px">
+                                <thead>
+                                    <th style="width: 10%">KMA</th>
+                                    <th style="width: 30%">URAIAN BIAYA</th>
+                                    <th style="width: 20%;">Total</th>
+                                    <th style="width: 10%;">Kode Rek</th>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($budget_code_summary as $summary): ?>
+                                    <tr>
+                                        <td><?= $summary['code'] ?></td>
+                                        <td class="text-left"><?= $summary['name'] ?></td>
+                                        <td>
+                                            <span style="float: left">Rp</span>
+                                            <span
+                                                style="float: right"><?= number_format($summary['total_price']) ?></span>
+                                        </td>
+                                        <td><?= $summary['acc_code'] ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td class="bold-black">Grand Total</td>
+                                        <td></td>
+                                        <td>
+                                            <span style="float: left">Rp</span>
+                                            <span class="bold-black"
+                                                style="float: right"><?= number_format($total_spending) ?></span>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="row signature">
+                            <div class="col-xs-3">
+                                <div><?= 'DIISI OLEH BAGIAN AKUNTANSI' ?></div>
+                                <div style="margin-top: 60px">
+                                    (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- this row will not appear when printing -->
+            <div class="row no-print">
+                <div class="col-xs-12">
+                    <button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+                        <?php _e('Print'); ?>
+                    </button>
+                    <a href="excel-generator/operational_report.php?<?= http_build_query($_GET) ?>"
+                        class="btn btn-default pull-right">
+                        Excel
+                    </a>
+                    <?php 
+                    if($cekbon > 0){
+                    } else {
+                        if($isAdmin || $liu['id'] == 72){?>
+                    <a data-toggle='tooltip' title='<?php _e(''); ?>' class="btn btn-primary pull-right" href="#"
+                        onClick='showM("index.php?modal=bskk/add&reroute=projects/viewbpkk&routeid=<?php echo $_GET['project_id']; ?>&real_amount=<?php echo $real_amount; ?>&bon_amount=<?php echo $bon_amount; ?>&bon_lastbalance=<?php echo $bon_lastbalance; ?>&startdate=<?php echo $_GET['start_date']; ?>&enddate=<?php echo $_GET['end_date']; ?>&projectid=<?php echo $_GET['project_id']; ?>");return false'><?php _e('BON'); ?></i></a>
+                    <?php }
+                    }                    
+                    ?>
+                </div>
+            </div>
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+        </section>
+    </section>
+</aside>
+
+<!-- Main content -->
+
+<style>
+    .header-title {
+        text-align: center;
+        font-weight: 700;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: large;
+    }
+
+    .subheader-text {
+        font-weight: 700;
+        font-size: xx-small;
+    }
+
+    th {
+        text-align: center;
+        font-weight: 700;
+        font-size: x-small;
+    }
+
+    td {
+        padding-left: 2px;
+        padding-right: 2px;
+        text-align: center;
+        font-size: x-small;
+    }
+
+    .bold-red {
+        color: #ff0000;
+        font-weight: bold;
+    }
+
+    .bold-black {
+        font-weight: bold;
+    }
+
+    .signature {
+        margin-top: 30px;
+        font-size: small;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media print {
+
+        .bold-red,
+        .bold-red * {
+            color: #ff0000 !important;
+            font-weight: bold;
+        }
+    }
+</style>

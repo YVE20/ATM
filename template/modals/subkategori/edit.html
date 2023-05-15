@@ -1,0 +1,28 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">
+			<?php _e('Edit Sub Kategori'); ?> <small>
+					<?php _e($SubKategori['name']);?></small></h4>
+<div class="modal-body">
+	<div class="form-group">
+			<label for="name">
+					<?php _e('Name'); ?> *</label>
+			<input type="text" class="form-control" autocomplete="off" id="name" name="name" value="<?php echo $SubKategori['name'];?>" required>
+			</div>
+			<input type="hidden" name="action" value="editSubKategori">
+			<input type="hidden" name="id" value="<?php echo $SubKategori['id']; ?>">
+			<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+			<?php if(isset($_GET['section'])){?>
+			<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+			<?php }?>
+			<?php if(isset($_GET['routeid'])){?>
+			<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+			<?php }?>
+
+			<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+							<?php _e('Cancel'); ?></button>
+							<button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+					</div>
+					<script type="text/javascript">    
+							$(function() { $(".select2").select2(); });
+					</script>

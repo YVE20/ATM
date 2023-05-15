@@ -1,0 +1,32 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1><?php _e('Dashboard'); ?></h1>
+        <ol class="breadcrumb"><li><a href="?route=dashboard"><i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li><li class="active"><?php _e('Dashboard'); ?></li></ol>
+    </section>
+<style>
+       .responsive img {
+           
+            width: 125%;
+            height: auto;
+        }        
+</style>
+    <!-- Main content -->
+    <section class="content">
+        <?php if(!empty($statusmessage)): ?>
+        <div class="row">
+            <div class='col-md-12'>
+                <div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert"><?php print __($statusmessage["message"]); ?></div></div></div>
+        <?php endif; ?>
+        <?php if(file_exists("install") == 1): ?>
+        <div class="row"><div class='col-md-12'><div class="alert alert-danger" role="alert"><b><?php _e('Plese delete the "install" directory!'); ?></b></div></div></div>
+        <?php endif; ?>
+          
+        <span class="responsive">
+          <img src="dashb.jpg">
+      </span>
+          
+
+    </section><!-- /.content -->
+</aside><!-- /.right-side -->

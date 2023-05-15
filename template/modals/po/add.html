@@ -1,0 +1,148 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+    aria-hidden="true">&times;</span></button>
+<h4 class="modal-title"><?php _e('Add PO'); ?></h4>
+</div>
+<div class="modal-body">
+<div class="form-group">
+<label for="nama_barang">
+    <?php _e('Nama Barang'); ?> *</label>
+<input type="text" class="form-control" autocomplete="off" id="nama_barang" name="nama_barang" required>
+</div>
+<div class="form-group">
+    <label for="customer">
+        <?php _e('Customer'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="customer" name="customer" required>
+    </div>
+    <div class="form-group">
+        <label for="jml_satuan">
+            <?php _e('Jumlah/Satuan'); ?> *</label>
+        <input type="text" class="form-control" autocomplete="off" id="jml_satuan" name="jml_satuan" required>
+        </div>
+
+<div class="form-group">
+<label for="province"><?php _e('Province'); ?> *</label>
+<select class="form-control select2 select2-hidden-accessible" required id="province" name="province"
+    style="width: 100%;" tabindex="-1" aria-hidden="true">
+    <option value=''><?php echo "None"; ?></option>
+    <?php foreach ($provinces as $province) { ?>
+    <option value='<?php echo $province['id']; ?>'><?php echo $province['name']; ?></option>
+    <?php } ?>
+</select>
+</div>
+<div class="form-group">
+<label for="regency"><?php _e('Regency'); ?> *</label>
+<select class="form-control select2 select2-hidden-accessible" required id="regency" name="regency"
+    style="width: 100%;" tabindex="-1" aria-hidden="true">
+    <option value=''><?php echo "Undefined"; ?></option>
+</select>
+</div>
+<div class="form-group">
+    <label for="district"><?php _e('District'); ?></label>
+    <select class="form-control select2 select2-hidden-accessible" id="district" name="district"
+        style="width: 100%;" tabindex="-1" aria-hidden="true">
+        <option value=''><?php echo "Undefined"; ?></option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="harga">
+        <?php _e('Harga'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="harga" name="harga" required>
+    </div>
+    <div class="form-group">
+        <label for="tgl_pengiriman">
+            <?php _e('Tanggal Pengiriman'); ?> *</label>
+        <input type="date" class="form-control" autocomplete="off" id="tgl_pengiriman" name="tgl_pengiriman" required>
+        </div>
+        <div class="form-group">
+            <label for="keterangan">
+                <?php _e('Keterangan'); ?> *</label>
+            <input type="text" class="form-control" autocomplete="off" id="keterangan" name="keterangan" required>
+            </div>
+<input type="hidden" name="action" value="addPo">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+<?php _e('Cancel'); ?></button>
+<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <?php _e('Create'); ?></button>
+</div>
+
+<script type="text/javascript">
+
+//chain combo box
+$("#province").change(function () {
+
+// variabel dari nilai combo province
+var province = $("#province").val();
+
+// mengirim dan mengambil data
+$.ajax({
+    type: "POST",
+    dataType: "html",
+    url: 'index.php?qa=province',
+    data: "province=" + province,
+    success: function (msg) {
+        // jika tidak ada data
+        if (msg == '') {
+            alert('No Data');
+        }
+
+        // jika dapat mengambil data,, tampilkan di combo box regency
+        else {
+            $("#regency").html(msg);
+        }
+
+    }
+});
+});
+$("#regency").change(function () {
+
+// variabel dari nilai combo regency
+var regency = $("#regency").val();
+
+// mengirim dan mengambil data
+$.ajax({
+    type: "POST",
+    dataType: "html",
+    url: 'index.php?qa=regency',
+    data: "regency=" + regency,
+    success: function (msg) {
+
+        // jika tidak ada data
+        if (msg == '') {
+            alert('No Data');
+        }
+
+        // jika dapat mengambil data,, tampilkan di combo box regency
+        else {
+            $("#district").html(msg);
+        }
+
+    }
+});
+});
+
+$(function () {
+        $(".select2").select2();
+        $(function () {
+            $(".select2tags").select2({
+                tags: true
+            });
+        });
+        $('#tgl_lahir').datepicker({
+            format: 'yyyy-mm-dd',
+            clearBtn: 'true',
+            todayBtn: "linked",
+            todayHighlight: true,
+            weekStart: '<?php echo getConfigValue("week_start"); ?>',
+            autoclose: true
+        });
+    });
+
+</script>

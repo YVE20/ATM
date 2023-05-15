@@ -1,0 +1,5363 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+
+	<!-- Main content -->
+	<section class="content">
+		<section class="invoice">
+
+			<?php $no=0;?>
+			<?php if($_GET['report'] == "issuesSummary") { ?>
+
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e($_GET['status'].' Issues Period Report'); ?></b></h4>
+
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="9"><span class="lead"><b><?php _e('ISSUES'); ?></b>
+										<?php if($isAdmin){ ?>
+										<small>
+											|| All : <?php echo $countIssuescurmonth;?> ||
+											Done : <?php echo $countdoneIssuescurmonth;?> ||
+											UnDone : <?php echo $countundoneIssuescurmonth;?> ||
+										</small>
+										<small class="pull-right">Presentase Done Issues :
+											<?php echo round($presentaseDoneIssues);?>%</small>
+										<?php }?>
+									</span></th>
+							</tr>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Type'); ?></th>
+								<th width="90"><?php _e('Issue Date'); ?></th>
+								<th width="90"><?php _e('Date Done'); ?></th>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Project'); ?></th>
+								<th><?php _e('Name'); ?></th>
+								<th><?php _e('Message'); ?></th>
+								<th><?php _e('Status'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($issues as $task) {  ?>
+							<?php $no++;?>
+							<tr>
+								<td><?php echo "$no"; ?></td>
+								<td><?php echo $task['issuetype']; ?></td>
+								<td><?php echo substr($task['dateadded'],0,10);?></td>
+								<td>
+									<?php if(is_null($task['datedoneed'])) echo "<span class='text-muted'>".__("Not Yet")."</span>"; else echo substr($task['datedoneed'],0,10); ?>
+								</td>
+								<td><?php echo getSingleValue("people","name",$task['clientid']); ?></td>
+								<td>
+									<?php if($task['projectid'] != 0) echo getSingleValue("projects","name",$task['projectid']); else echo "<span class='text-muted'>".__("None")."</span>"; ?>
+								</td>
+								<td><?php echo $task['name']; ?></td>
+
+								<?php 
+									global $database;
+									$min = $database->min("issues_replies", "timestamp", ["issuesid" => $task['id']]);			
+									$description = $database->get("issues_replies", "description", ["AND" => ["timestamp" => $task['id'], "timestamp" => $min]]);
+									?>
+								<td>
+									<?php if($description == '' || $description == ' ') echo "<span class='text-muted'>".__("None")."</span>"; else echo  $description; ?>
+								</td>
+								<td>
+									<?php if($task['datedoneed'] > $enddate) echo "In Progress"; else echo $task['status']; ?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "mutationSummary") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e(getSingleValue("goods","name",$_GET['goodsid']).' Mutation Period Report '); ?></b>
+					</h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['warehouseid']) && $_GET['warehouseid'] != 0) echo "<h4>".__("Warehouse")." <b>".getSingleValue("warehouses","name",$_GET['warehouseid'])."</b></h4>"; ?>
+					<?php if($_GET['warehouseid'] == 0) echo "<h4>Warehouse <b>All</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<?php if($_GET['warehouseid'] == 0 && $_GET['goodsid'] == 0){?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Mutation Date'); ?></th>
+								<th><?php _e('Mutation'); ?></th>
+								<th><?php _e('Goods'); ?></th>
+								<th><?php _e('Warehouse'); ?></th>
+								<th><?php _e('In'); ?></th>
+								<th><?php _e('Out'); ?></th>
+								<th><?php _e('Info'); ?></th>
+								<th><?php _e('Type'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($mutations as $mutation) { 
+								$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo substr($mutation['datetime'],0,10); ?></td>
+								<td><?php echo $mutation['no']; ?></td>
+								<td><?php echo getSingleValue("goods", "name", $mutation['goodsid']); ?></td>
+								<td><?php echo getSingleValue("warehouses", "name", $mutation['warehouseid']); ?></td>
+								<td><?php echo $mutation['in']; ?></td>
+								<td><?php echo $mutation['out']; ?></td>
+								<td><?php echo $mutation['info']; ?></td>
+								<td>
+									<?php 
+										if($mutation['type'] == 1) {  
+										echo "Low"; 
+									} else if ($mutation['type'] == 1) {  
+									echo "Medium";
+								} else {  
+								echo "High"; 
+							}?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+					<?php } elseif($_GET['warehouseid'] == 0){?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Mutation Date'); ?></th>
+								<th><?php _e('Mutation'); ?></th>
+								<th><?php _e('Warehouse'); ?></th>
+								<th><?php _e('In'); ?></th>
+								<th><?php _e('Out'); ?></th>
+								<th><?php _e('Info'); ?></th>
+								<th><?php _e('Type'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($mutations as $mutation) { 
+					$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo substr($mutation['datetime'],0,10); ?></td>
+								<td><?php echo $mutation['no']; ?></td>
+								<td><?php echo getSingleValue("warehouses", "name", $mutation['warehouseid']); ?></td>
+								<td><?php echo $mutation['in']; ?></td>
+								<td><?php echo $mutation['out']; ?></td>
+								<td><?php echo $mutation['info']; ?></td>
+								<td>
+									<?php 
+							if($mutation['type'] == 1) {  
+							echo "Low"; 
+						} else if ($mutation['type'] == 1) {  
+						echo "Medium";
+					} else {  
+					echo "High"; 
+				}?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+					<?php } elseif($_GET['goodsid'] == 0){?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Mutation Date'); ?></th>
+								<th><?php _e('Mutation'); ?></th>
+								<th><?php _e('Goods'); ?></th>
+								<th><?php _e('In'); ?></th>
+								<th><?php _e('Out'); ?></th>
+								<th><?php _e('Info'); ?></th>
+								<th><?php _e('Type'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($mutations as $mutation) { 
+			$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo substr($mutation['datetime'],0,10); ?></td>
+								<td><?php echo $mutation['no']; ?></td>
+								<td><?php echo getSingleValue("goods", "name", $mutation['goodsid']); ?></td>
+								<td><?php echo $mutation['in']; ?></td>
+								<td><?php echo $mutation['out']; ?></td>
+								<td><?php echo $mutation['info']; ?></td>
+								<td>
+									<?php 
+					if($mutation['type'] == 1) {  
+					echo "Low"; 
+				} else if ($mutation['type'] == 1) {  
+				echo "Medium";
+			} else {  
+			echo "High"; 
+		}?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+					<?php } else {?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Mutation Date'); ?></th>
+								<th><?php _e('Mutation'); ?></th>
+								<th><?php _e('In'); ?></th>
+								<th><?php _e('Out'); ?></th>
+								<th><?php _e('Info'); ?></th>
+								<th><?php _e('Type'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($mutations as $mutation) { 
+			$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo substr($mutation['datetime'],0,10); ?></td>
+								<td><?php echo $mutation['no']; ?></td>
+								<td><?php echo $mutation['in']; ?></td>
+								<td><?php echo $mutation['out']; ?></td>
+								<td><?php echo $mutation['info']; ?></td>
+								<td>
+									<?php 
+					if($mutation['type'] == 1) {  
+					echo "Low"; 
+				} else if ($mutation['type'] == 1) {  
+				echo "Medium";
+			} else {  
+			echo "High"; 
+		}?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+					<?php }?>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "offer") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?>
+						<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+					</h2>
+					<center>
+						<h3><b><u><?php _e('TENDER PRICE OFFER'); ?></u></b>
+							<small>#
+								<?php echo $tenderr['kode_tender'];?>
+							</small></h3>
+					</center>
+				</div>
+			</div>
+			<br>
+
+			<div class="row">
+				<table>
+					<tbody>
+						<tr>
+							<td style="width: 50px">
+								&nbsp;
+							</td>
+							<td style="width: 100px;">
+								Offer Code
+							</td>
+							<td>
+								<?php echo ": ".$tenderr['kode_penawaran_vendor'];?>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 50px">
+								&nbsp;
+							</td>
+							<td style="width: 100px;">
+								Offer Date
+							</td>
+							<td>
+								<?php echo ": ".date('d F Y', strtotime($tenderr['tgl']))?>
+							</td>
+						</tr>
+
+					</tbody>
+				</table>
+				<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dengan hormat, <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bersama ini kami informasikan penawaran harga. Rincian penawaran
+				pengiriman sebagi berikut : <br><br>
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('Tender Item'); ?></th>
+								<th><?php _e('Price'); ?></th>
+								<th><?php _e('Payment System'); ?></th>
+								<th><?php _e('Delivery On Time'); ?></th>
+								<th><?php _e('C1'); ?></th>
+								<th><?php _e('c2'); ?></th>
+								<th><?php _e('c3'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr>
+
+			<td>	<?php if($tenderr['id']==0){?>
+						<?php } else { echo getSingleValue("tenderitems","nameitems",$tenderr['id_itemtender']); }?>
+					
+						<?php if($tenderr['id']==0){?>
+							<?php } else { echo getSingleValue("tenderitems","qty",$tenderr['id_itemtender']); }?>
+
+							<?php if($tenderr['id']==0){?>
+								<?php } else { echo getSingleValue("tenderitems","id_sizecat",$tenderr['id_itemtender']); }?>
+					</td>
+							
+
+								<td><?php echo __("Rp.")?>
+									<?php echo number_format($tenderr['harga']);?></td>
+								<td><?php echo $tenderr['tgl']; ?></td>
+
+								<td><?php echo $tenderr['harga']; ?></td>
+								<td><?php echo $tenderr['tgl']; ?></td>
+								<td><?php echo $tenderr['harga']; ?></td>
+								<td><?php echo $tenderr['tgl']; ?></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<br>
+				<tr>
+					<td style="width: 50px">
+						&nbsp;&nbsp; &nbsp; &nbsp;
+					</td>
+					<td style="width: 250px;">
+						Information &nbsp;:
+					</td>
+					<td>
+						<?php echo $tenderr['info'];?>
+					</td>
+				</tr>
+				<br>
+				<div class="row">
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4" align="pull-right">
+						<center>Kudus, <?php echo date("d M Y", strtotime(date('d-m-Y'))); ?></center>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+						<center>Hormat Kami,</center>
+					</div>
+				</div>
+				<br><br><br><br><br><br>
+				<div class="row">
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+						<center>
+							<u class="box-title"><?php if($tenderr['id']==0){?><span
+									class='text-muted'><?php echo __("Undefined")?></span>
+								<?php } else { echo getSingleValue("vendor","name",$tenderr['id_tendervendor']); }?></span>
+							</u>
+						</center>
+					</div>
+				</div>
+
+				<style>
+					div {
+						text-align: justify;
+						text-justify: inter-word;
+					}
+				</style>
+
+			</div>
+
+			<br>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "ppd") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h4>
+						<b><u>
+								<?php 
+							if($hai['sbppbt'] == 1){
+								echo "PT. SARANA BANGUN PUSAKA";
+							} else {
+								echo "PT. PURA BARUTAMA";
+							}
+							?>
+							</u></b>
+						<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+					</h4>
+					<center>
+						<h3><b><u><?php _e('PERSETUJUAN PERJALANAN DINAS'); ?></u></b>
+							<small>#<?php echo add_nol($hai['id'],5);?></small></h3>
+					</center>
+				</div>
+			</div>
+			<br><br>
+			Dengan hormat, <br>
+			Dengan ini kami mohon persetujuan atas rencana perjalanan dinas kami sebagai berikut : <br><br>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Nama
+						</td>
+						<td>
+							<?php echo getSingleValue("people","name",$hai['peopleid']);?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Peserta lain
+						</td>
+						<td>
+							<?php 
+								if($hai['participant']!=""){
+									$selectedParticipant = unserialize($hai['participant']);
+									foreach ($selectedParticipant as $item) {
+										echo getSingleValue("people","name",$item).", ";
+									}
+								}
+								?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Tujuan
+						</td>
+						<td>
+							<?php 
+							if($hai['project']==""){
+								echo $hai['destination'];
+							} else {
+								echo $hai['destination']." (".$hai['project'].")";
+							}							
+							?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Lama perjalanan dari tanggal
+						</td>
+						<td>
+							<?php 
+									$diff = strtotime($hai['finishdate'])-strtotime($hai['startdate']);
+									if(date('d M Y', strtotime($hai['startdate'])) == date('d M Y', strtotime($hai['finishdate']))) {
+										echo date('d F Y', strtotime($hai['startdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+									} else if(date('M', strtotime($hai['startdate'])) == date('M', strtotime($hai['finishdate']))){
+										echo date('d', strtotime($hai['startdate']))." - ".date('d F Y', strtotime($hai['finishdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+									} else {
+										echo date('d F Y', strtotime($hai['startdate']))." - ".date('d F Y', strtotime($hai['finishdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+									}												
+								?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Keperluan
+						</td>
+						<td>
+							<?php echo $hai['necessity'];?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Jenis transportasi
+						</td>
+						<td>
+							<?php echo $hai['vehicle'];?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Tempat menginap
+						</td>
+						<td>
+							<?php echo $hai['lodging'];?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Taksiran biaya
+						</td>
+						<td>
+							<?php echo number_format($hai['estimated_cost'],0,",",".");?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			Demikian surat permohonan kami atas persetujuan yang diberikan kami ucapkan banyak terimakasih.<br><br>
+			<div class="row">
+				<div class="col-xs-4">
+
+				</div>
+				<div class="col-xs-4">
+					<?php if($hai['kabag']==0){?>
+					<center>Kudus,
+						<?php echo date("d F Y", strtotime(date("Y-m-d", strtotime($hai['startdate'] . ' - 1 days')))); ?>
+					</center>
+					<?php }?>
+				</div>
+				<div class="col-xs-4">
+					<?php if($hai['kabag']==1){?>
+					<center>Kudus,
+						<?php echo date("d F Y", strtotime(date("Y-m-d", strtotime($hai['startdate'] . ' - 1 days')))); ?>
+					</center>
+					<?php }?>
+				</div>
+			</div>
+			<?php if($hai['kabag']==0){?>
+			<div class="row">
+				<div class="col-xs-6">
+					<center>Menyetujui</center>
+				</div>
+				<div class="col-xs-6">
+					<center>Pemohon</center>
+				</div>
+			</div>
+			<br><br><br><br>
+			<div class="row">
+				<div class="col-xs-6">
+					<center>
+						<?php if($liu['id']!= 53){?>
+						(VIVIT D H)
+						<?php } else {?>
+						(JOHAN S)
+						<?php }?>
+					</center>
+				</div>
+				<div class="col-xs-6">
+					<center>
+						(<?php echo getSingleValue("people","name",$hai['peopleid']);?>)
+					</center>
+				</div>
+			</div>
+			<?php } else {?>
+			<div class="row">
+				<div class="col-xs-4">
+					<center>Menyetujui</center>
+				</div>
+				<div class="col-xs-4">
+					<center>Mengetahui</center>
+				</div>
+				<div class="col-xs-4">
+					<center>Pemohon</center>
+				</div>
+			</div>
+			<br><br><br><br>
+			<div class="row">
+				<div class="col-xs-4">
+					<center>
+						<?php if($liu['id']!= 53){?>
+						(VIVIT D H)
+						<?php } else {?>
+						(JOHAN S)
+						<?php }?>
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						(<?php echo getSingleValue("people","name",$hai['peopleid']);?>)
+					</center>
+				</div>
+			</div>
+			<?php }?>
+			<br><br>
+			<font size="2">
+				*)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Jika pemohon adalah level dibawah pimpinan divisi, disetujui oleh
+				pimpinan divisi yang bersangkutan <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Jika pemohon adalah level pimpinan Unit,
+				disetujui
+				oleh
+				Direktur yang membawahi <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. Jika pemohon adalah level Direktur, disetujui
+				oleh
+				Direktur Utama <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4. Untuk perjalanan ke Luar Negeri disetujui oleh
+				Direktur
+				Utama
+			</font>
+			<hr />
+
+			<b><u>CATATAN :</u></b><br>
+			<font size="2">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Permohonan persetujuan ini harus dilampirkan pada
+				saat perhitungan realisasi dengan kasir, tanpa dilampiri dengan Surat Pertujuan ini pembuatan
+				BPKP/BPKK
+				tidak bisa dilaksanakan dan nota-nota tidak bisa diuangkan<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Surat Persetujuan ini tidak berlaku untuk
+				taksiran
+				biaya perjalanan dibawah Rp 50.000,-<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. Pimpinan yang menyetujui tidak boleh menjadi
+				peserta
+				perjalanan
+			</font>
+			<hr />
+			<style>
+				div {
+					text-align: justify;
+					text-justify: inter-word;
+				}
+			</style>
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<div class="pull-right">
+						<?php if($isAdmin){
+										if($hai['is_valid'] != 1){?>
+						<a data-toggle='tooltip' title='<?php _e('Valid'); ?>'
+							href="?qa=validppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-square-o"></i></a>&nbsp;
+						<?php } else {?>
+						<a data-toggle='tooltip' title='<?php _e('unValid'); ?>'
+							href="?qa=unvalidppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-check-square"></i></a>&nbsp;
+						<?php }
+									if(in_array("editppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/edit&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-default'><i class='fa fa-edit'></i></a>&nbsp;
+						<?php }
+										if(in_array("deleteppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/delete&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-danger'><i class='fa fa-trash-o'></i></a>&nbsp;
+						<?php }
+									} else if($liu['id']==$hai['peopleid']){
+										if($hai['is_valid'] != 1){
+											if(in_array("editppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/edit&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-default'><i class='fa fa-edit'></i></a>&nbsp;
+						<?php }
+											if(in_array("deleteppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/delete&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-danger'><i class='fa fa-trash-o'></i></a>&nbsp;
+						<?php }
+										}									
+									} else if($liu['clientid']==1){
+										if($hai['is_valid'] != 1){?>
+						<a data-toggle='tooltip' title='<?php _e('Valid'); ?>'
+							href="?qa=validppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-square-o"></i></a>&nbsp;
+						<?php } else {?>
+						<a data-toggle='tooltip' title='<?php _e('unValid'); ?>'
+							href="?qa=unvalidppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-check-square"></i></a>&nbsp;
+						<?php }									
+									}?>
+						<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+							<?php _e('Print'); ?></button>
+					</div>
+				</div>
+			</div>
+			<?php } elseif($_GET['report'] == "calc_gr") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<center>
+						<h3><b><u><?php _e('Calculation Guardrail'); ?></u></b></h3><small>
+							#<?php echo $calgr['code'];?></small>
+					</center>
+				</div>
+			</div>
+			<br><br>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Project
+						</td>
+						<td>
+							<?php echo ": ".$calgr['name_project'];?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Location
+						</td>
+						<td>
+							<?php $text ="";
+							if($calgr['district'] != "" && $calgr['district'] != "0"){
+								$text .= getSingleValue("districts","name",$calgr['district']).", ";
+							}
+							if($calgr['regency'] != "" && $calgr['regency'] != "0"){
+								$text .= getSingleValue("regencies","name",$calgr['regency']).", ";
+							}
+							if($calgr['province'] != "" && $calgr['province'] != "0"){
+								$text .= getSingleValue("provinces","name",$calgr['province']);
+							}
+							echo ": ".$text;
+							?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Product
+						</td>
+						<td>
+							<?php if($calgr['product']=='A'){
+								echo ": "."Type A - Uk. 6 mm";
+							} else {
+								echo ": "."Type B - Uk. 4,5 mm";
+							}?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Oplaag
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgr['oplaag'],0,",",".")." meter";?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Point
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgr['point'],0,",",".")." titik";?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Steel Price &emsp; Beam
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgrdtrm['pricermbeam']/1.045,0,",",".");?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; Post & Blockpost
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgrdtrm['pricermpost']/1.045,0,",",".");?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Galvanis
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgrdtsubkon['pricegalvanisbeam'],0,",",".");?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Shipping
+						</td>
+						<td>
+							<?php echo ": ".number_format($calgrdtmisc['pricesc'],0,",",".");?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							<b>HPP</b>
+						</td>
+						<td>
+							<b><?= ": ".$_GET['profit0z'];?></b>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td colspan="2">
+							<table border="1">
+								<thead>
+									<tr>
+										<th style="width: 150px;">
+											<center><?php _e('Persentase (%)'); ?></center>
+										</th>
+										<th style="width: 150px;">
+											<center><?php _e('Price Sell per Meter'); ?></center>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											<center>
+												5%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit5z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												7%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit7z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												10%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit10z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												15%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit15z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												<font size="4"><b><?= $_GET['calcpersen'];?></b></font>
+											</center>
+										</td>
+										<td>
+											<center>
+												<font size="4"><b><?= $_GET['calcper'];?></b></font>
+											</center>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Asumsi :
+							<br>Miscellaneous Charge
+							<br>Discount
+							<br>Fixed Cost
+						</td>
+						<td>
+							&nbsp;<br><?php echo ": ".number_format($calgrdtmisc['misc_cost'],0,",",".")." per meter";?>
+							&nbsp;<br><?php echo ": ".$calgrdtmisc['discounto_cost']."%";?>
+							&nbsp;<br><?php echo ": ".number_format($calgrdtmisc['fixed_cost'],0,",",".")." per meter";?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+			<br>
+			<style>
+				div {
+					text-align: justify;
+					text-justify: inter-word;
+				}
+			</style>
+			<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<div class="pull-right">
+						<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+							<?php _e('Print'); ?></button>
+					</div>
+				</div>
+			</div>
+			<?php } elseif($_GET['report'] == "calc_marka") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<center>
+						<h3><b><u><?php _e('CALCULATION MARKA'); ?></u></b></h3>
+					</center>
+				</div>
+			</div>
+			<br><br>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Finished Goods
+						</td>
+						<td>
+							<?php echo ": ".getSingleValue("goodsmarka", "name", $head['finished_goodsid'])." Ver ".getSingleValue("calculation_marka_reff", "ver", $head['ver']);?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							<b>HPP</b>
+						</td>
+						<td>
+							<b><?= ": ".$_GET['profit0z'];?></b>
+						</td>
+					</tr>
+					<?php if(isset($_GET['detail'])){?>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td colspan="2">
+							<table border="1">
+								<thead>
+									<tr>
+										<th style="width: 250px;">
+											<center><?php _e('Name'); ?></center>
+										</th>
+										<th style="width: 150px;">
+											<center><?php _e('Price (Rp)'); ?></center>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach($detail as $item){?>
+									<tr>
+										<td>
+											<?php 
+											if(stristr(getSingleValue("goodsmarka", "name", $item['raw_materialid']), 'C5 HYDROCARBON RESIN R 1105') === FALSE) {
+												if(stristr(getSingleValue("goodsmarka", "name", $item['raw_materialid']), 'PIGMENT TIO2 POWDER BLR 698') === FALSE) {
+												echo getSingleValue("goodsmarka", "name", $item['raw_materialid']);
+												} else {
+													echo "F2";
+												}
+											  } else {
+												  echo "F1";
+											  }
+											?>
+										</td>
+										<td>
+											<center>
+												<?php echo number_format($item['price'],0,",",".");?>
+											</center>
+										</td>
+									</tr>
+									<?php }?>
+									<tr>
+										<td>
+											Sak & Sablon
+										</td>
+										<td>
+											<center>
+												<?php echo number_format($head['sak_sablon']/25,0,",",".");
+												?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Plastic
+										</td>
+										<td>
+											<center>
+												<?php echo number_format($head['plastic']/25,0,",",".");
+												?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Wages
+										</td>
+										<td>
+											<center>
+												<?php $wage = $assumption['assumption_umr']*25/$assumption['assumption_total_working_days']/$assumption['assumption_production_capacity'];
+												echo number_format($wage*$assumption['assumption_number_workers']/25,0,",",".");?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Electricity Costs
+										</td>
+										<td>
+											<center>
+												<?php
+												$price =  7*$assumption['assumption_kwh']*$assumption['assumption_price_kwh']*25/$assumption['assumption_production_capacity'];
+												 echo number_format($price*$assumption['assumption_machine_quantity']/25,0,",",".");?>
+											</center>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<?php }?>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td colspan="2">
+							<table border="1">
+								<thead>
+									<tr>
+										<th style="width: 150px;">
+											<center><?php _e('Persentase (%)'); ?></center>
+										</th>
+										<th style="width: 150px;">
+											<center><?php _e('Price Sell per Kg'); ?></center>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											<center>
+												5%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit5z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												7%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit7z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												10%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit10z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												15%
+											</center>
+										</td>
+										<td>
+											<center>
+												<?= $_GET['profit15z'];?>
+											</center>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<center>
+												<font size="4"><b><?= $_GET['calcpersen'];?></b></font>
+											</center>
+										</td>
+										<td>
+											<center>
+												<font size="4"><b><?= $_GET['calcper'];?></b></font>
+											</center>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Asumsi :
+							<br>Production Capacity
+							<br>Machine Quantity
+							<br>KwH/Machine
+							<br>Price KwH
+							<br>Number of Workers
+							<br>UMR
+							<br>Total Working Days
+						</td>
+						<td>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_production_capacity'],0,',','.')." kg / shift work";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_machine_quantity'],0,',','.')." machine";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_kwh'],0,',','.')." KwH";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_price_kwh'],0,',','.')." Rp";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_number_workers'],0,',','.')." Workers";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_umr'],0,',','.')." Rp";?>
+							&nbsp;<br><?php echo ": ".number_format($assumption['assumption_total_working_days'],0,',','.')." days";?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+			<style>
+				div {
+					text-align: justify;
+					text-justify: inter-word;
+				}
+			</style>
+			<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<div class="pull-right">
+						<?php if(isset($_GET['detail'])){?>
+						<a class="btn btn-primary" href='<?= substr(get_uri(), 0, -7);?>'>
+							HIDE DETAIL PRICE
+						</a>
+						<?php } else if($isAdmin || $liu['clientid']==1) {?>
+						<a class="btn btn-primary" href='<?= get_uri().'&detail';?>'>
+							DETAIL PRICE
+						</a>
+						<?php }?>
+						<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+							<?php _e('Print'); ?></button>
+					</div>
+				</div>
+			</div>
+			<?php } elseif($_GET['report'] == "ppdreal") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h4>
+						<b><u>
+								<?php 
+								if($hai['sbppbt'] == 1){
+									echo "PT. SARANA BANGUN PUSAKA";
+								} else {
+									echo "PT. PURA BARUTAMA";
+								}
+								?>
+							</u></b>
+						<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+					</h4>
+					<center>
+						<h3><b><u><?php _e('LAPORAN BIAYA PERJALANAN DINAS'); ?></u></b>
+							<small>#<?php echo add_nol($hai['id'],5);?></small></h3>
+					</center>
+				</div>
+			</div>
+			<br><br>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Nama
+						</td>
+						<td>
+							<?php echo getSingleValue("people","name",$hai['peopleid']);?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Peserta lain
+						</td>
+						<td>
+							<?php 
+									if($hai['participant']!=""){
+										$selectedParticipant = unserialize($hai['participant']);
+										foreach ($selectedParticipant as $item) {
+											echo getSingleValue("people","name",$item).", ";
+										}
+									}
+									?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Tujuan
+						</td>
+						<td>
+							<?php 
+								if($hai['project']==""){
+									echo $hai['destination'];
+								} else {
+									echo $hai['destination']." (".$hai['project'].")";
+								}							
+								?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Lama perjalanan dari tanggal
+						</td>
+						<td>
+							<?php 
+										$diff = strtotime($hai['finishdate'])-strtotime($hai['startdate']);
+										if(date('d M Y', strtotime($hai['startdate'])) == date('d M Y', strtotime($hai['finishdate']))) {
+											echo date('d F Y', strtotime($hai['startdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+										} else if(date('M', strtotime($hai['startdate'])) == date('M', strtotime($hai['finishdate']))){
+											echo date('d', strtotime($hai['startdate']))." - ".date('d F Y', strtotime($hai['finishdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+										} else {
+											echo date('d F Y', strtotime($hai['startdate']))." - ".date('d F Y', strtotime($hai['finishdate']))." (".(floor($diff / (60 * 60 * 24))+1)." hari)";
+										}												
+									?>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 50px">
+							&nbsp;
+						</td>
+						<td style="width: 250px;">
+							Keperluan
+						</td>
+						<td>
+							<?php echo $hai['necessity'];?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+			<table border="1" style="width: 100%;">
+				<thead>
+					<tr>
+						<th>
+							<center><?php _e('Date'); ?></center>
+						</th>
+						<th>
+							<center><?php _e('Description'); ?></center>
+						</th>
+						<th>
+							<center><?php _e('Cost'); ?></center>
+						</th>
+						<th>
+							<center><?php _e('Information'); ?></center>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php $tot=0; foreach ($ppdreal as $item) { ?>
+					<tr>
+						<td>
+							<center>
+								<?php echo date('d M Y', strtotime($item['date'])); ?>
+							</center>
+						</td>
+						<td>
+							<?php echo $item['desc'];?>
+						</td>
+						<td>
+							<div class="pull-right">
+								<?php $tot = $tot + $item['cost'];
+								 echo number_format($item['cost'],0,",",".");?>
+							</div>
+						</td>
+						<td>
+
+						</td>
+					</tr>
+					<?php } ?>
+					<tr>
+						<td colspan="2">
+							<center>
+								<b>
+									<font size="4">TOTAL</font>
+								</b>
+							</center>
+						</td>
+						<td>
+							<div class="pull-right">
+								<b>
+									<font size="4"><?php echo number_format($tot,0,",",".");?></font>
+								</b>
+							</div>
+						</td>
+						<td>
+
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<center>
+								<b>
+									<font size="4">Pengajuan Biaya</font>
+								</b>
+							</center>
+						</td>
+						<td>
+							<div class="pull-right">
+								<b>
+									<font size="4"><?php echo number_format($hai['estimated_cost'],0,",",".");?></font>
+								</b>
+							</div>
+						</td>
+						<td>
+
+						</td>
+					</tr>
+					<tr>
+						<?php if($tot <= $hai['estimated_cost']){?>
+						<td colspan="2">
+							<center><b>
+									<font size="4">Kelebihan</font>
+								</b></center>
+						</td>
+						<td>
+							<div class="pull-right">
+								<b>
+									<font size="4"><?php $fix = $hai['estimated_cost']-$tot;
+										 echo number_format($fix,0,",",".");?></font>
+								</b>
+							</div>
+						</td>
+						<td>
+
+						</td>
+						<?php } else {?>
+						<td colspan="2">
+							<center><b>
+									<font size="4">Kekurangan</font>
+								</b></center>
+						</td>
+						<td>
+							<div class="pull-right">
+								<b>
+									<font size="4"><?php $fix = $tot-$hai['estimated_cost'];
+										echo "- ".number_format($fix,0,",",".");?></font>
+								</b>
+							</div>
+						</td>
+						<td>
+
+						</td>
+						<?php }?>
+					</tr>
+				</tbody>
+			</table>
+			<br><br>
+			<div class="row">
+				<div class="col-xs-4">
+
+				</div>
+				<div class="col-xs-4">
+				</div>
+				<div class="col-xs-4">
+					<div class="pull-right">
+						Kudus, <?php echo date("d F Y", strtotime(date('d-m-Y'))); ?>
+					</div>
+				</div>
+			</div>
+			<?php if($hai['kabag']==0){?>
+			<div class="row">
+				<div class="col-xs-4">
+					<center>Menyetujui</center>
+				</div>
+				<div class="col-xs-4">
+					<center>Diperiksa</center>
+				</div>
+				<div class="col-xs-4">
+					<center>Dibuat oleh</center>
+				</div>
+			</div>
+			<br><br><br><br>
+			<div class="row">
+				<div class="col-xs-4">
+					<center>
+						<?php if($liu['id']!= 53){?>
+						(VIVIT D H)
+						<?php } else {?>
+						(JOHAN)
+						<?php }?>
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						(<?php echo getSingleValue("people","name",$hai['peopleid']);?>)
+					</center>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-4">
+					<center>
+						PIMPINAN
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						PERENCANAAN
+					</center>
+				</div>
+				<div class="col-xs-4">
+					<center>
+						PEMOHON
+					</center>
+				</div>
+			</div>
+			<?php } else {?>
+			<div class="row">
+				<div class="col-xs-3">
+					<center>Menyetujui</center>
+				</div>
+				<div class="col-xs-3">
+					<center>Diperiksa</center>
+				</div>
+				<div class="col-xs-3">
+					<center>Mengetahui</center>
+				</div>
+				<div class="col-xs-3">
+					<center>Dibuat oleh</center>
+				</div>
+			</div>
+			<br><br><br><br>
+			<div class="row">
+				<div class="col-xs-3">
+					<center>
+						<?php if($liu['id']!= 53){?>
+						(VIVIT D H)
+						<?php } else {?>
+						(JOHAN S)
+						<?php }?>
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						(<?php echo getSingleValue("people","name",$hai['peopleid']);?>)
+					</center>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-3">
+					<center>
+						PIMPINAN
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						PERENCANAAN
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						KEPALA TERKAIT
+					</center>
+				</div>
+				<div class="col-xs-3">
+					<center>
+						PEMOHON
+					</center>
+				</div>
+			</div>
+			<?php }?>
+
+			<hr />
+			<style>
+				div {
+					text-align: justify;
+					text-justify: inter-word;
+				}
+			</style>
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<div class="pull-right">
+						<?php if($isAdmin){
+											if($hai['is_valid'] != 1){?>
+						<a data-toggle='tooltip' title='<?php _e('Valid'); ?>'
+							href="?qa=validppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-square-o"></i></a>&nbsp;
+						<?php } else {?>
+						<a data-toggle='tooltip' title='<?php _e('unValid'); ?>'
+							href="?qa=unvalidppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-check-square"></i></a>&nbsp;
+						<?php }
+										if(in_array("editppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/edit&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-default'><i class='fa fa-edit'></i></a>&nbsp;
+						<?php }
+											if(in_array("deleteppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/delete&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-danger'><i class='fa fa-trash-o'></i></a>&nbsp;
+						<?php }
+										} else if($liu['id']==$hai['peopleid']){
+											if($hai['is_valid'] != 1){
+												if(in_array("editppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/edit&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-default'><i class='fa fa-edit'></i></a>&nbsp;
+						<?php }
+												if(in_array("deleteppd",$perms) || true) {?>
+						<a href="#"
+							onClick='showM("index.php?modal=ppd/delete&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>&section=");return false'
+							class='btn btn-danger'><i class='fa fa-trash-o'></i></a>&nbsp;
+						<?php }
+											}									
+										} else if($liu['clientid']==1){
+											if($hai['is_valid'] != 1){?>
+						<a data-toggle='tooltip' title='<?php _e('Valid'); ?>'
+							href="?qa=validppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-square-o"></i></a>&nbsp;
+						<?php } else {?>
+						<a data-toggle='tooltip' title='<?php _e('unValid'); ?>'
+							href="?qa=unvalidppd&reroute=history-data/ppd&id=<?php echo $hai['id']; ?>" class="btn btn-success"><i
+								class="fa fa-check-square"></i></a>&nbsp;
+						<?php }									
+										}?>
+						<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+							<?php _e('Print'); ?></button>
+					</div>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "offer") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?>
+						<small class="pull-right"><?php _e('Printed on:'); ?> <?php echo date('d-m-Y'); ?></small>
+					</h2>
+					<center>
+						<h3><?php _e('Tender Price Offer'); ?></h3>
+					</center>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<table id="mutationDetailsTable" class="table table-striped table-hover">
+					<tbody>
+						<tr>
+							<td style="width: 150px;"><b><?php _e('Date Sent'); ?></b></td>
+							<td><?php echo date('d F Y', strtotime($hai['date'])); ?></td>
+						</tr>
+						<tr>
+							<td><b><?php _e('Date of Receipt'); ?></b></td>
+							<td>
+								<?php
+											$date_acc = $database->max("mutationguardrail_detail","date_acc", ["headid" => $hai['id']]);
+											if($date_acc== '0000-00-00'){
+												echo "<span class='text-muted'>".__("None")."</span>";
+											} else {
+												echo date('d F Y', strtotime($date_acc)); 
+											}										 
+											 ?>
+							</td>
+						</tr>
+						<tr>
+							<td><b><?php _e('Code'); ?></b></td>
+							<td><?php echo $hai['code']; ?></td>
+						</tr>
+						<tr>
+							<td><b><?php _e('NO SJ'); ?></b></td>
+							<td><?php echo $hai['nosj']; ?></td>
+						</tr>
+						<tr>
+							<td><b><?php _e('Number Plate'); ?></b></td>
+							<td><?php echo $hai['numberplate']; ?></td>
+						</tr>
+						<tr>
+							<td><b><?php _e('From Warehouse'); ?></b></td>
+							<td>
+								<span class='label' style="background-color:#FFF;color:#0073b7;border:1px solid #0073b7;">
+									<?php echo getSingleValue("warehouses","name",$hai['warehouseidfrom']); ?>
+								</span>
+							</td>
+						</tr>
+						<tr>
+							<td><b><?php _e('To Warehouse'); ?></b></td>
+							<td>
+								<span class='label' style="background-color:#FFF;color:#0073b7;border:1px solid #0073b7;">
+									<?php echo getSingleValue("warehouses","name",$hai['warehouseid']); ?>
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<br><br>
+				<table border="1" class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>
+								<center><?php _e('Goods'); ?></center>
+							</th>
+							<th>
+								<center><?php _e('Batch'); ?></center>
+							</th>
+							<th>
+								<center><?php _e('QTY'); ?></center>
+							</th>
+							<th>
+								<center><?php _e('QTY Valid'); ?></center>
+							</th>
+							<th>
+								<center><?php _e('Deviation'); ?></center>
+							</th>
+							<th style="width: 150px;">
+								<center><?php _e('Info'); ?></center>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ($items as $item) { ?>
+						<td>
+							<center>
+								<?php echo getSingleValue("goodsguardrail","name",$item['goodsid']);?>
+							</center>
+						</td>
+						<td>
+							<center>
+								<?php echo $item['nobatch']; ?>
+							</center>
+						</td>
+						<td>
+							<div class="pull-right">
+								<?php 
+												echo $item['qty']." ".getSingleValue("size","name",getSingleValue("goodsguardrail","sizeid",$item['goodsid']));
+											?>
+							</div>
+						</td>
+						<td>
+							<div class="pull-right">
+								<?php 
+												echo $item['qty_valid']." ".getSingleValue("size","name",getSingleValue("goodsguardrail","sizeid",$item['goodsid']));
+											?>
+							</div>
+						</td>
+						<td>
+							<div class="pull-right">
+								<?php 
+												echo $item['qty_valid']-$item['qty']." ".getSingleValue("size","name",getSingleValue("goodsguardrail","sizeid",$item['goodsid']));
+											?>
+							</div>
+						</td>
+						<td><?php echo $item['info']; ?></td>
+						</tr>
+						<?php } ?>
+					</tbody>
+				</table>
+				<table frame="box">
+					<tbody>
+						<tr>
+							<td width="10"></td>
+							<td width="150"><b><?php _e('Description'); ?></b></td>
+							<td><?php echo $hai['notes']; ?></td>
+							<td width="10"></td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+				<div class="row">
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4" align="pull-right">
+						<center>Kudus, <?php echo date("d M Y", strtotime(date('d-m-Y'))); ?></center>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-4">
+						<center>Sender</center>
+					</div>
+					<div class="col-xs-4">
+						<center>Approved</center>
+					</div>
+					<div class="col-xs-4">
+						<center>Best regards,</center>
+					</div>
+				</div>
+				<br><br><br><br><br><br>
+				<div class="row">
+					<div class="col-xs-4">
+						<center>
+							<u>
+								<?php echo getSingleValue('people','name',getSingleValue('warehouses','peopleid',$hai['warehouseidfrom']));?>
+							</u>
+						</center>
+					</div>
+					<div class="col-xs-4">
+						<center><u><?php echo getSingleValue('people','name',$liu['id']);?></u></center>
+					</div>
+					<div class="col-xs-4">
+						<center>
+							<u>
+								<?php echo getSingleValue('people','name',getSingleValue('warehouses','peopleid',$hai['warehouseid']));?>
+							</u>
+						</center>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-4">
+						<center><?php echo getSingleValue('warehouses','name',$hai['warehouseidfrom']);?>
+						</center>
+					</div>
+					<div class="col-xs-4">
+						<center><?php echo $database->get("clients", "name", ["id" => 7]);?></center>
+					</div>
+					<div class="col-xs-4">
+						<center><?php echo getSingleValue('warehouses','name',$hai['warehouseid']);?>
+						</center>
+					</div>
+				</div>
+
+				<style>
+					div {
+						text-align: justify;
+						text-justify: inter-word;
+					}
+				</style>
+
+			</div>
+			<br>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "maintenance") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('Laporan Maintenance Online'); ?><br><small>
+								<?php _e($_GET['status'].' Maintenances Period Report');?></small></b></h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if($_GET['clientid'] == 0) echo "<h4>Client <b>All</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="8"><span class="lead"><b><?php _e('MAINTENANCE'); ?></b>
+										<small>
+											|| All : <?php echo $mtCount;?> ||
+											Done : <?php echo $doneMtCount;?> ||
+											In Progress & To Do : <?php echo $todoMtCount+$IPMtCount;?> ||
+											<?php 
+								if ($mtCount == 0){
+								$presentaseDoneMt = 100;
+							} else {
+							$presentaseDoneMt = $doneMtCount/$mtCount*100; 
+						}
+						?>
+										</small>
+										<small class="pull-right">Presentase Done Maintenances :
+											<?php echo round($presentaseDoneMt);?>%</small>
+									</span></th>
+							</tr>
+							<tr>
+								<th colspan="12">
+									<?php _e('Department Doneed :'); ?>
+									<?php 
+					echo "|| ";
+					for ($x = 0; $x < $countDept; $x++) {                            		
+					echo getSingleValue("clients","name",$dept[$x])." || ";
+				}
+				?>
+								</th>
+							</tr>
+							<tr>
+								<th colspan="12">
+									<?php _e('Department unDoneed :'); ?>
+									<?php 
+				echo "|| ";
+				for ($x = 0; $x < $countDeptu; $x++) {                            		
+				echo getSingleValue("clients","name",$deptu[$x])." || ";
+			}
+			?>
+								</th>
+							</tr>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Department'); ?></th>
+								<th><?php _e('Schedule Maintenance'); ?></th>
+								<th><?php _e('Maintenance Date'); ?></th>
+								<th><?php _e('Asset'); ?></th>
+								<th><?php _e('Status'); ?></th>
+								<th><?php _e('Keterangan'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<?php $lastClientid = 0;
+		foreach($maintenances as $task) { $no++;
+	
+		?>
+							<tr>
+								<td><?php echo"$no"; ?></td>
+								<td>
+									<?php 
+				if ($task['clientid'] != $lastClientid){
+				echo getSingleValue("clients","name",$task['clientid']);
+			}
+			$lastClientid = $task['clientid'];								
+			?>
+								</td>
+								<td><?php echo $task['startdate']; ?></td>
+								<td><?php echo $task['enddate']; ?></td>
+								<td>
+									<?php echo getSingleValue("assets","tag",$task['assetid']); ?><br><?php echo getSingleValue("assets","name",$task['assetid']); ?>
+								</td>
+								<td><?php echo $task['status']; ?></td>
+								<td><?php echo $task['message']; ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+				<div class="pull-right">
+					<i><b>F.EDP.02.00</b></i>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "rapvsreal") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<table border="1">
+						<tbody>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" rowspan="4" colspan="4">
+									<center><img src="<?php echo "http://".$_SERVER['SERVER_NAME']."/uploads/img/LOGO-SBP.png";?>"
+											height="70" width="170"></center>
+								</td>
+								<td style="width: 39px" rowspan="4" colspan="7">
+									<center><b>
+											<font size="3px">REKAPITULASI PROFIT MARGIN</font>
+										</b></center>
+								</td>
+								<td style="width: 109px">
+									<font size="1px">No. Dokumen</font>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">: SBP-F-PRC-005</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px">No. Revisi</font>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">: 00</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px">Tanggal Berlaku</font>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">: 01/08/2017</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px">Halaman</font>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">:</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 6px">
+
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">NO RAP</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['no_rap'];?>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">MULAI</font>
+									</b>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">
+											<?php echo ": ".date('d F Y', strtotime($projects['startdate']));?>
+										</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">REVISI RAP</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['revisi_rap'];?>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">SELESAI</font>
+									</b>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">
+											<?php echo ": ".date('d F Y', strtotime($projects['finishdate']));?>
+										</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">PEMBERI KERJA</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['pemberi_kerja'];?>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">PROGRESS</font>
+									</b>
+								</td>
+								<td style="width: 109px">
+									<b>
+										<font size="1px">
+											<?php echo ": ".date('d F Y', strtotime($enddate));?>
+										</font>
+									</b>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">NO DAN TGL KONTRAK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['tgl_kontrak'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">NAMA PROYEK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['nama_proyek'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">WAKTU PELAKSANAAN</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['waktu_pelaksanaan'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">ADDENDUM KONTRAK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['addendum_kontrak'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">PELAKSANA PROYEK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['pelaksana_proyek'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">PEMEGANG PROYEK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['pemegang_proyek'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">LOKASI PROYEK</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									<?php echo $projects['lokasi_proyek'];?>
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 6px" colspan="4">
+									<b>
+										<font size="1px">URAIAN PEKERJAAN</font>
+									</b>
+								</td>
+								<td style="width: 39px">
+									<center><b>
+											<font size="1px">:</font>
+										</b></center>
+								</td>
+								<td style="width: 109px" colspan="6">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px" bgcolor="#c1c7c7">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<b>
+											<font size="1px">NO</font>
+										</b></center>
+								</td>
+								<td style="width: 6px" colspan="8">
+									<center><b>
+											<font size="1px">RINCIAN PEKERJAAN</font>
+										</b></center>
+								</td>
+								<td style="width: 53px">
+									<center><b>
+											<font size="1px">SAT</font>
+										</b></center>
+								</td>
+								<td style="width: 109px">
+									<center><b>
+											<font size="1px">VOL KONTRAK</font>
+										</b></center>
+								</td>
+								<td style="width: 109px">
+									<center><b>
+											<font size="1px">VOL PROGRESS</font>
+										</b></center>
+								</td>
+								<td style="width: 109px">
+									<center><b>
+											<font size="1px">DEVIASI</font>
+										</b></center>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php $no=0; $omzet=0; foreach ($job_details as $item) { $no++;?>
+							<tr style="height: 20px" bgcolor="">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<font size="1px"><?php echo $no;?></font>
+									</center>
+								</td>
+								<td style="width: 6px" colspan="8">
+									<font size="1px"><?php echo $item['name']; ?></font>
+								</td>
+								<td style="width: 53px">
+									<center>
+										<font size="1px">
+											<?php echo getSingleValue("size","name",$item['sizeid']); ?></font>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px">
+											<?php echo number_format($item['volume_contract'],2,",","."); ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px">
+											<?php
+											  $progress = $database->sum("projects_progress","volume", ["AND" => ["jobid" => $item['id'], "date[<>]" => [$startdate, $enddate]]]);
+											  $omzet = $omzet+($progress*$item['price']);
+											  if($progress == 0){
+												echo "-&nbsp;&nbsp;&nbsp;";
+											  }	else {
+												echo number_format($progress,2,",",".");
+											  }										  
+											  ?>
+										</font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px">
+											<?php 
+											  if($progress > $item['volume_contract']){
+												$dor = $progress-$item['volume_contract'];
+												echo "(".number_format($dor,2,",",".").")";
+											  } elseif($progress < $item['volume_contract']){
+											  $dor = $item['volume_contract']-$progress;
+											  echo number_format($item['volume_contract']-$progress,2,",",".");
+											  } else {
+												echo "-&nbsp;&nbsp;&nbsp;";
+											  }?>
+										</font>
+									</div>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php }									
+									if($projects['is_ppn']==1){
+										$totomzet = $omzet+($omzet*10/100);
+									} else {
+										$totomzet = $omzet;
+									}							
+									?>
+							<tr style="height: 6px">
+
+							</tr>
+
+							<tr style="height: 20px" bgcolor="#c1c7c7">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px" colspan="10">
+									<center>
+										<B>
+											<font size="1px"><?php echo "URAIAN RAP PROYEK";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "REALISASI";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "REALISASI + ASUMSI S/D AKHIR PROYEK";?>
+											</font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "SELISIH<br>ANGGARAN AKHIR";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px" bgcolor="#c1c7c7">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px" colspan="10">
+									<center>
+										<B>
+											<font size="1px"><?php echo "1";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "2";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "3";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 109px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "4 = 1 - 3";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "A.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px"><?php echo "Nilai Kontrak";?></font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php													
+													echo number_format((str_replace('.','',$projects['contract_price'])*0.10)+str_replace('.','',$projects['contract_price']),0,",",".");?>
+											</font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php
+											 echo number_format($totomzet,0,",",".");
+											 ?>
+											</font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "B.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px"><?php echo "PPN 10%";?></font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php
+													if($projects['is_ppn']==1){
+														$ppn = str_replace('.','',$projects['contract_price'])*0.10; 
+													echo
+													number_format(str_replace('.','',$projects['contract_price'])*0.10,0,",",".");
+													} else {
+														$ppn = 0;
+														echo "-";
+													}?>
+											</font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php
+													if($projects['is_ppn']==1){
+														$ppnreal = $omzet*0.10; 
+														echo number_format($omzet*10/100,0,",",".");
+													} else {
+														$ppnreal = 0;
+														echo "-";
+													}											 
+											 ?>
+											</font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "C.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px"><?php echo "Harga Kontrak";?></font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px"><?php
+													$contract_price = $projects['contract_price'];
+													echo number_format($contract_price,0,",",".");
+													 ?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php										
+											 echo number_format($omzet,0,",",".");
+											 ?>
+											</font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "D.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="7">
+									<B>
+										<font size="1px"><?php echo "Biaya Variabel";?></font>
+									</B>
+								</td>
+								<td style="width: 136px">
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php 
+								$drap =0; $dreal=0;
+								for($i=1; $i<5; $i++){
+									$prog = $database->query("select sum(a.volume*a.unit_price) as progress FROM realpro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and c.headid=".$i." and date between '" . $startdate . "' AND '" . $enddate."'")->fetchAll();
+									$rap = $database->query("select sum(a.volume*a.unit_price) as rap FROM rap_pro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and c.headid=".$i)->fetchAll();
+									?>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+									<center>
+										<font size="1px"><?php echo $i.".";?></font>
+									</center>
+								</td>
+								<td style="width: 34px" colspan="5">
+									<font size="1px">
+										<?php echo $database->get("budget_code_head", "name", ["code" => $i]);;?>
+									</font>
+								</td>
+								<td style="width: 42px">
+									<center>
+										<font size="1px"><?php echo "Rp.";?></font>
+									</center>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($rap as $z){
+												if($z['rap'] != 0){
+													echo number_format($z['rap'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}
+												$cost_rap = $z['rap'];
+												$drap += $cost_rap;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 53px">
+									<div class="pull-right">
+										<font size="1px"><?php
+													echo number_format($cost_rap/$contract_price*100,2,",",".")."%";
+														 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($prog as $z){
+												if($z['progress'] != 0){
+													echo number_format($z['progress'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}											
+												$cost_progress = $z['progress'];
+												$dreal += $cost_progress;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php }?>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+									<center>
+										<font size="1px"><?php echo "5.";?></font>
+									</center>
+								</td>
+								<td style="width: 34px" colspan="5">
+									<font size="1px">
+										<?php echo $database->get("budget_code_head", "name", ["code" => 5]);;?>
+									</font>
+								</td>
+								<td style="width: 42px">
+								</td>
+								<td style="width: 136px">
+									&nbsp;
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php $budget_code_five = $database->select("budget_code_subhead", "*", ["headid" => 5, "ORDER" => "code ASC"]);
+								foreach($budget_code_five as $item) {
+									$prog = $database->query("select sum(a.volume*a.unit_price) as progress FROM realpro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and c.code=".$item['code']." and date between '" . $startdate . "' AND '" . $enddate."'")->fetchAll();
+									$rap = $database->query("select sum(a.volume*a.unit_price) as rap FROM rap_pro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and c.code=".$item['code'])->fetchAll();
+									?>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+								</td>
+								<td style="width: 34px">
+									<center>
+										<font size="1px"><?php echo $item['code'];?></font>
+									</center>
+								</td>
+								<td style="width: 96px" colspan="4">
+									<font size="1px">
+										<?php echo $item['name'];?></font>
+								</td>
+								<td style="width: 42px">
+									<center>
+										<font size="1px"><?php echo "Rp.";?></font>
+									</center>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($rap as $z){
+												if($z['rap'] != 0){
+													echo number_format($z['rap'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}
+												$cost_rap = $z['rap'];
+												$drap += $cost_rap;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 53px">
+									<div class="pull-right">
+										<font size="1px"><?php
+													echo number_format($cost_rap/$contract_price*100,2,",",".")."%";
+														 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($prog as $z){
+												if($z['progress'] != 0){
+													echo number_format($z['progress'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}											
+												$cost_progress = $z['progress'];
+												$dreal += $cost_progress;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php }?>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+									<center>
+										<font size="1px"><?php echo "6.";?></font>
+									</center>
+								</td>
+								<td style="width: 34px" colspan="5">
+									<font size="1px">
+										<?php echo $database->get("budget_code_head", "name", ["code" => 6]);;?>
+									</font>
+								</td>
+								<td style="width: 42px">
+								</td>
+								<td style="width: 136px">
+									&nbsp;
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php $budget_code_six = $database->select("budget_code_subhead", "*", ["headid" => 6, "ORDER" => "code ASC"]);
+								foreach($budget_code_six as $item) {
+									$prog = $database->query("select sum(a.volume*a.unit_price) as progress FROM realpro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and c.code=".$item['code']." and date between '" . $startdate . "' AND '" . $enddate."'")->fetchAll();
+									$rap = $database->query("select sum(a.volume*a.unit_price) as rap FROM rap_pro a join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and  c.code=".$item['code'])->fetchAll();?>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+								</td>
+								<td style="width: 34px">
+									<center>
+										<font size="1px"><?php echo $item['code'];?></font>
+									</center>
+								</td>
+								<td style="width: 96px" colspan="4">
+									<font size="1px">
+										<?php echo $item['name'];?></font>
+								</td>
+								<td style="width: 42px">
+									<center>
+										<font size="1px"><?php echo "Rp.";?></font>
+									</center>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($rap as $z){
+												if($z['rap'] != 0){
+													echo number_format($z['rap'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}
+												$cost_rap = $z['rap'];
+												$drap += $cost_rap;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 53px">
+									<div class="pull-right">
+										<font size="1px"><?php
+													echo number_format($cost_rap/$contract_price*100,2,",",".")."%";
+														 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px"><?php
+											foreach($prog as $z){
+												if($z['progress'] != 0){
+													echo number_format($z['progress'],0,",",".");
+												} else {
+													echo "-&nbsp;&nbsp;&nbsp;";
+												}											
+												$cost_progress = $z['progress'];
+												$dreal += $cost_progress;
+											}											
+												 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<?php }?>
+							<tr style="height: 20px">
+								<?php ?>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+									<center>
+										<font size="1px"><?php echo "7.";?></font>
+									</center>
+								</td>
+								<td style="width: 34px" colspan="5">
+									<font size="1px">
+										<?php
+											$prog = $database->query("select sum(a.volume*a.unit_price) as progress FROM
+											realpro a join budget_code_detail b on a.budgetcodeid=b.id join
+											budget_code_subhead c on b.subheadid=c.id where a.projectid=".$projects['id']." and  c.headid= 7 and date between
+											'" . $startdate . "' AND '" . $enddate."'")->fetchAll();
+											$rap = $database->query("select sum(a.volume*a.unit_price) as rap FROM rap_pro a
+											join budget_code_detail b on a.budgetcodeid=b.id join budget_code_subhead c on
+											b.subheadid=c.id where a.projectid=".$projects['id']." and  c.headid=7")->fetchAll();
+											 echo $database->get("budget_code_head", "name", ["code" => 7]);
+											 ?></font>
+								</td>
+								<td style="width: 42px">
+									<center>
+										<font size="1px"><?php echo "Rp.";?></font>
+									</center>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<font size="1px"><?php
+												foreach($rap as $z){
+													if($z['rap'] != 0){
+														echo number_format($z['rap'],0,",",".");
+													} else {
+														echo "-&nbsp;&nbsp;&nbsp;";
+													}
+													$cost_rap = $z['rap'];
+													$drap += $cost_rap;
+												}											
+													 ?></font>
+									</div>
+								</td>
+								<td style="width: 53px">
+									<div class="pull-right">
+										<font size="1px"><?php
+														echo number_format($cost_rap/$contract_price*100,2,",",".")."%";
+															 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<font size="1px"><?php
+												foreach($prog as $z){
+													if($z['progress'] != 0){
+														echo number_format($z['progress'],0,",",".");
+													} else {
+														echo "-&nbsp;&nbsp;&nbsp;";
+													}											
+													$cost_progress = $z['progress'];
+													$dreal += $cost_progress;
+												}											
+													 ?></font>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px" colspan="6">
+									<b>
+										<font size="1px"><?php echo "Jumlah D";?></font>
+									</b>
+								</td>
+								<td style="width: 42px">
+									<center>
+										<font size="1px"><?php echo "Rp.";?></font>
+									</center>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px"><?php echo number_format($drap,0,",",".");?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px"><?php echo number_format($dreal,0,",",".");?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px"></font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px" colspan="10">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 109px">
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "E.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px"><?php echo "Laba Karya / Laba Kotor (C - D)";?></font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $huruferap = $contract_price-$drap;
+													echo number_format($huruferap,0,",",".");
+													?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $hurufereal = $omzet-$dreal;
+														echo number_format($hurufereal,0,",",".");?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "F.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px"><?php echo "Alokasi Biaya Tetap 15% dari Laba Karya";?>
+										</font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $huruffrap = $huruferap*15/100;
+															echo number_format($huruffrap,0,",",".");
+															?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $huruffreal = $hurufereal*15/100;
+																echo number_format($huruffreal,0,",",".");?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "G.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="6">
+									<B>
+										<font size="1px">
+											<?php echo "Laba Proyek / Produksi setelah Alokasi Biaya Tetap (E - F)";?>
+										</font>
+									</B>
+								</td>
+								<td style="width: 42px">
+									<b>
+										<center>
+											<font size="1px"><?php echo "Rp.";?></font>
+										</center>
+									</b>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $hurufgrap = $huruferap-$huruffrap;
+																echo number_format($hurufgrap,0,",",".");
+																?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $hurufgreal = $hurufereal-$huruffreal;
+																	echo number_format($hurufgreal,0,",",".");?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									<center>
+										<B>
+											<font size="1px"><?php echo "H.";?></font>
+										</B>
+									</center>
+								</td>
+								<td style="width: 22px" colspan="7">
+									<B>
+										<font size="1px"><?php echo "Kontribusi Margin Proyek ini (E/C x 100%)";?>
+										</font>
+									</B>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $hurufhrap = $huruferap/$contract_price*100;
+															echo number_format($hurufhrap,2,",",".")."%";
+															?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $hurufhreal = $hurufereal/$contract_price*100;
+																echo number_format($hurufhreal,2,",",".")."%";?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+								</td>
+								<td style="width: 22px" colspan="7">
+									<B>
+										<font size="1px"><?php echo "Laba Bersih (G/C x 100%)";?></font>
+									</B>
+								</td>
+								<td style="width: 136px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $profitrap = $hurufgrap/$contract_price*100;
+																echo number_format($profitrap,2,",",".")."%";
+																?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<div class="pull-right">
+										<B>
+											<font size="1px">
+												<?php $profitreal = $hurufgreal/$contract_price*100;
+																	echo number_format($profitreal,2,",",".")."%";?></font>
+										</B>
+									</div>
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+							<tr style="height: 20px">
+							</tr>
+							<tr style="height: 20px">
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+								<td style="width: 27px">
+									&nbsp;
+								</td>
+								<td style="width: 22px">
+									&nbsp;
+								</td>
+								<td style="width: 34px">
+									&nbsp;
+								</td>
+								<td style="width: 96px">
+									&nbsp;
+								</td>
+								<td style="width: 39px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 89px">
+									&nbsp;
+								</td>
+								<td style="width: 42px">
+									&nbsp;
+								</td>
+								<td style="width: 136px">
+									&nbsp;
+								</td>
+								<td style="width: 53px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									&nbsp;
+								</td>
+								<td style="width: 109px">
+									<font size="1px">Halaman</font>
+								</td>
+								<td style="width: 109px">
+									<font size="1px">:</font>
+								</td>
+								<td style="width: 6px">
+									&nbsp;
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="pull-right">
+				<i><b>F.EDP.02.00</b></i>
+			</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "mutprosjSummary") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('Report Mutation SJ '); ?></b>
+						<?php if($_GET['mutprosj_vsuppid'] == 0){?>
+						<small><?php _e(' All Supplier'); ?></small>
+						<?php } else {?>
+						<small><?php _e(' Supplier : '.getSingleValue("vehiclesupplier","name",$_GET['mutprosj_vsuppid'])); ?></small>
+						<?php }?>
+					</h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['mutprosj_projectid']) && $_GET['mutprosj_projectid'] != 0) echo "<h4>".__("Projects")." <b>"."[".getSingleValue("projects","code",$_GET['mutprosj_projectid'])."] ".getSingleValue("projects","name",$_GET['mutprosj_projectid'])."</b></h4>"; ?>
+					<?php if($_GET['mutprosj_projectid'] == 0) echo "<h4>Projects <b>All</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<?php if(isset($_GET['detail'])){?>
+					<!-- perDETAIL DATA-->
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th>
+									<center><?php _e('Date'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('SJ'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Vehicle'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Dimension'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Volume'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Parcel'); ?></center>
+								</th>
+								<?php if($_GET['mutprosj_vsuppid'] != 0){?>
+								<th>
+									<center><?php _e('Supplier'); ?></center>
+								</th>
+								<?php }?>
+								<th>
+									<center><?php _e('Type of Soil'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Info'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- HEADER SUPPLIER / PROYEK -->
+							<?php 
+					$currvsupp = null;
+					$currproject = null;
+					foreach($mutprosj as $item) {
+					if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] != 0){ //all supplier one project
+					if($item['vsupp'] != $currvsupp){ //membuat header per record data supplier
+					$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td colspan="5">
+									<h4><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</h4>
+								</td>
+								<td colspan="3">
+									<h4><b>
+											<?php
+							$totvol = 0;
+							foreach($mutprosj as $itemv) {
+							if($itemv['vsupp'] == $currvsupp){
+								if($_GET['mutprosj_projectid'] == 5){
+									$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+								} else {
+									$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+								}							
+						}
+					}
+					echo $totvol. " m3";
+					?>
+										</b></h4>
+								</td>
+								<td>
+									<h4><b>
+											<?php
+					foreach($ritvsupp as $itemv) {
+					if($itemv['vsupp'] == $currvsupp){
+					echo $itemv['rit']." rit";
+				}
+			}				
+			?>
+										</b></h4>
+								</td>
+							</tr>
+							<?php }
+	} else if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] == 0) { //all supplier & all proyek
+	if($item['projectid'] != $currproject){ //membuat header per record data project
+	$currproject = $item['projectid'];?>
+							<tr>
+								<td colspan="5">
+									<h4><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b></h4>
+								</td>
+								<td colspan="3">
+									<h4><b>
+											<?php
+			$totvol = 0;
+			foreach($mutprosj as $itemv) {
+			if($itemv['projectid'] == $currproject){
+				if($_GET['mutprosj_projectid'] == 5){
+					$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				} else {
+					$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				}			
+		}
+	}
+	echo $totvol. " m3";
+	?>
+										</b></h4>
+								</td>
+								<td>
+									<h4><b>
+											<?php
+		foreach($ritvpro as $itemv) {
+		if($itemv['projectid'] == $currproject){
+		echo $itemv['rit']." rit";
+	}
+	}				
+	?>
+										</b></h4>
+								</td>
+							</tr>
+							<?php }
+	}
+	$no++; ?>
+							<!-- DETAIL DATA-->
+							<tr>
+								<td><?php echo "$no"; ?></td>
+								<td>
+									<center><?php echo date('d F Y', strtotime($item['date']));?></center>
+								</td>
+								<td>
+									<center><?php echo $item['code']; ?></center>
+								</td>
+								<td>
+									<center>
+										<?php echo getSingleValue("vehicles","numberplate",$item['vehicleid']); ?>
+									</center>
+								</td>
+								<td>
+									<center>
+										<?php echo $item['length']." x ".$item['wide']." x ".($item['high']+$item['plus']); ?>
+									</center>
+								</td>
+								<td>
+									<center>
+										<?php 
+										if($_GET['mutprosj_projectid'] == 5){
+											echo cubicationgeo($item['length'],$item['wide'],$item['high'],$item['plus'])." m3"; 
+										} else {
+											echo cubication($item['length'],$item['wide'],$item['high'],$item['plus'])." m3"; 
+										}										
+										?>
+									</center>
+								</td>
+								<td>
+									<center><?php echo getSingleValue("parcel","name",$item['parcelid']); ?></center>
+								</td>
+								<?php if($_GET['mutprosj_vsuppid'] != 0){?>
+								<td>
+									<center>
+										<?php if($item['vsupp'] == 0){ ?>
+										<span class='text-muted'><?php echo __("undefined")?></span>
+										<?php } else { 
+			echo getSingleValue("vehiclesupplier","name",$item['vsupp']);
+		}?>
+									</center>
+								</td>
+								<?php }?>
+								<td>
+									<center><?php echo getSingleValue("soil","name",$item['soilid']); ?></center>
+								</td>
+								<td>
+									<center><?php echo $item['info']; ?></center>
+								</td>
+							</tr>
+							<?php 
+	} 
+	?>
+						</tbody>
+					</table>
+					<?php } else {
+	if(!isset($_GET['parcel']) && !isset($_GET['type'])){?>
+					<!-- not perPARCEL DATA-->
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<?php if($_GET['mutprosj_projectid'] == 0){?>
+								<th>
+									<center><?php _e('Project'); ?></center>
+								</th>
+								<?php } else if($_GET['mutprosj_vsuppid'] == 0){?>
+								<th>
+									<center><?php _e('Supplier'); ?></center>
+								</th>
+								<?php }?>
+								<?php if($_GET['mutprosj_projectid'] != 0 && $_GET['mutprosj_vsuppid'] != 0){?>
+								<th></th>
+								<?php }?>
+								<th>
+									<center><?php _e('Volume'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Ritase'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+			$currvsupp = null;
+			$currproject = null;
+			$grandtotalm3 = 0; $grandtotalrit = 0;
+			foreach($mutprosj as $item) {
+			if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] != 0){ //all supplier one proyek
+			if($item['vsupp'] != $currvsupp){ //membuat header per record data supplier
+			$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+					$totvol = 0;
+					foreach($mutprosj as $itemv) {
+					if($itemv['vsupp'] == $currvsupp){
+						if($_GET['mutprosj_projectid'] == 5){
+							$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+						} else {
+							$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+						}					
+				}
+			}
+			echo $totvol. " m3";
+			$grandtotalm3 = $grandtotalm3 + $totvol;
+			?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			$totrit = 0;
+			foreach($ritvsupp as $itemv) {
+			if($itemv['vsupp'] == $currvsupp){
+			echo $itemv['rit']." rit";
+			$totrit = $totrit + $itemv['rit'];
+			$grandtotalrit = $grandtotalrit + $itemv['rit'];
+		}
+	}				
+	?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	} else if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] == 0) { //all supplier all proyek
+	if($item['projectid'] != $currproject){ //membuat header per record data proyek
+	$currproject = $item['projectid'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			$totvol = 0;
+			foreach($mutprosj as $itemv) {
+			if($itemv['projectid'] == $currproject){
+				if($_GET['mutprosj_projectid'] == 5){
+					$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);		
+				} else {
+					$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);		
+				}			
+		}
+	}
+	echo $totvol. " m3";
+	$grandtotalm3 = $grandtotalm3 + $totvol;
+	?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+		foreach($ritvpro as $itemv) {
+		if($itemv['projectid'] == $currproject){
+		echo $itemv['rit']." rit";
+		$grandtotalrit = $grandtotalrit + $itemv['rit'];
+	}
+	}				
+	?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	} else {
+		if($_GET['mutprosj_projectid'] == 5){
+			$grandtotalm3 = $grandtotalm3 + cubicationgeo($item['length'],$item['wide'],$item['high'],$item['plus']);
+		} else {
+			$grandtotalm3 = $grandtotalm3 + cubication($item['length'],$item['wide'],$item['high'],$item['plus']);
+		}		
+		foreach($ritvsupp as $itemv) {
+			$grandtotalrit = $itemv['rit'];
+	}
+	}
+	$no++; ?>
+							<?php 
+	} 
+	?>
+							<tr>
+								<td>
+									<center>
+										<h4><b><?php echo "Grand Total";?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalm3. " m3";?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalrit. " rit";?></b></h4>
+									</center>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<?php } else if(isset($_GET['parcel'])){ //perPARCEL DATA & one proyek
+	?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>
+									<center><?php _e('Supplier'); ?></center>
+								</th>
+								<?php //header perParcel
+				foreach($parcel as $key){?>
+								<th colspan="2">
+									<center><?php _e(getSingleValue("parcel","name",$key['parcelid'])); ?></center>
+								</th>
+								<?php }
+				?>
+								<th colspan="2">
+									<center><?php _e('Total'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+			$currvsupp = null;
+			$currparcelid = null;
+			$currproject = null;
+			foreach($mutprosj as $item) {
+			$totrit = 0; $totm = 0;
+			if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] != 0){ //all supplier one proyek
+			if($item['vsupp'] != $currvsupp){ //membuat header data per supplier
+			$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</center>
+								</td>
+								<?php foreach($parcel as $key){ //data per parcel
+				?>
+								<td>
+									<center><b>
+											<?php
+					$totvol = 0;
+					foreach($mutprosj as $itemv) {
+					if($itemv['vsupp'] == $currvsupp && $itemv['parcelid'] == $key['parcelid']){
+						if($_GET['mutprosj_projectid'] == 5){
+							$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+						} else {
+							$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+						}					
+				}
+			}
+			echo $totvol. " m3";
+			$totm = $totm + $totvol;		
+			?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			foreach($ritvsupp as $itemv) {
+			if($itemv['vsupp'] == $currvsupp && $itemv['parcelid'] == $key['parcelid']){
+			echo $itemv['rit']." rit";
+			$totrit = $totrit + $itemv['rit'];
+		}
+	}				
+	?>
+										</b></center>
+								</td>
+								<?php }?>
+								<td>
+									<center><b>
+											<?php
+		echo $totm. " m3";
+		?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+		echo $totrit." rit";
+		?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	} else if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] == 0) { //all supplier & all proyek
+	if($item['projectid'] != $currproject){ //membuat header data per proyek
+	$currproject = $item['projectid'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			$totvol = 0;
+			foreach($mutprosj as $itemv) {
+			if($itemv['projectid'] == $currproject){
+				if($_GET['mutprosj_projectid'] == 5){
+					$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				} else {
+					$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				}			
+		}
+	}
+	echo $totvol. " m3";
+	?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+		foreach($ritvpro as $itemv) {
+		if($itemv['projectid'] == $currproject){
+		echo $itemv['rit']." rit";
+	}
+	}				
+	?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	}
+	$no++; ?>
+							<?php 
+	} 
+	?>
+							<!-- Footer-->
+							<tr>
+								<td>
+									<center>
+										<h4><b><?php echo "Grand Total";?></b></h4>
+									</center>
+								</td>
+								<?php
+		$grandtotalrit=0;$grandtotalm3 =0;
+		foreach($parcel as $key){ //data per parcel
+		?>
+								<td>
+									<center>
+										<h4><b>
+												<?php
+			$totvol = 0;
+			foreach($mutprosj as $itemv) {
+			if($itemv['parcelid'] == $key['parcelid']){
+				if($_GET['mutprosj_projectid'] == 5){
+					$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				} else {
+					$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+				}			
+		}
+	}
+	echo $totvol. " m3";
+	$grandtotalm3 = $totvol + $grandtotalm3;
+	?>
+											</b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b>
+												<?php
+		$totritparcel = 0;
+		foreach($ritvsupp as $itemv) {
+		if($itemv['parcelid'] == $key['parcelid']){
+		$totritparcel = $totritparcel + $itemv['rit'];
+	}
+	}
+	echo $totritparcel. " rit";
+	$grandtotalrit = $totritparcel + $grandtotalrit;
+	?>
+											</b></h4>
+									</center>
+								</td>
+								<?php }?>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalm3. " m3";?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalrit. " rit";?></b></h4>
+									</center>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<?php } else if(isset($_GET['type'])){ //perTYPE DATA & one proyek ?>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>
+									<center><?php _e('Supplier'); ?></center>
+								</th>
+								<?php //header perType
+									foreach($type as $key){?>
+								<th colspan="2">
+									<center><?php _e(getSingleValue("soil","name",$key['soilid'])); ?></center>
+								</th>
+								<?php }
+									?>
+								<th colspan="2">
+									<center><?php _e('Total'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+								$currvsupp = null;
+								$currparcelid = null;
+								$currproject = null;
+								foreach($mutprosj as $item) {
+								$totrit = 0; $totm = 0;
+								if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] != 0){ //all supplier one proyek
+								if($item['vsupp'] != $currvsupp){ //membuat header data per supplier
+								$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</center>
+								</td>
+								<?php foreach($type as $key){ //data per type
+									?>
+								<td>
+									<center><b>
+											<?php
+										$totvol = 0;
+										foreach($mutprosj as $itemv) {
+										if($itemv['vsupp'] == $currvsupp && $itemv['soilid'] == $key['soilid']){
+											if($_GET['mutprosj_projectid'] == 5){
+												$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+											} else {
+												$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+											}					
+									}
+								}
+								echo $totvol. " m3";
+								$totm = $totm + $totvol;		
+								?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+								foreach($ritvsupp as $itemv) {
+								if($itemv['vsupp'] == $currvsupp && $itemv['soilid'] == $key['soilid']){
+								echo $itemv['rit']." rit";
+								$totrit = $totrit + $itemv['rit'];
+							}
+						}				
+						?>
+										</b></center>
+								</td>
+								<?php }?>
+								<td>
+									<center><b>
+											<?php
+							echo $totm. " m3";
+							?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+							echo $totrit." rit";
+							?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+						} else if($_GET['mutprosj_vsuppid'] == 0 && $_GET['mutprosj_projectid'] == 0) { //all supplier & all proyek
+						if($item['projectid'] != $currproject){ //membuat header data per proyek
+						$currproject = $item['projectid'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+								$totvol = 0;
+								foreach($mutprosj as $itemv) {
+								if($itemv['projectid'] == $currproject){
+									if($_GET['mutprosj_projectid'] == 5){
+										$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+									} else {
+										$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+									}			
+							}
+						}
+						echo $totvol. " m3";
+						?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+							foreach($ritvpro as $itemv) {
+							if($itemv['projectid'] == $currproject){
+							echo $itemv['rit']." rit";
+						}
+						}				
+						?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+						}
+						$no++; ?>
+							<?php 
+						} 
+						?>
+							<!-- Footer-->
+							<tr>
+								<td>
+									<center>
+										<h4><b><?php echo "Grand Total";?></b></h4>
+									</center>
+								</td>
+								<?php
+							$grandtotalrit=0;$grandtotalm3 =0;
+							foreach($type as $key){ //data per type
+							?>
+								<td>
+									<center>
+										<h4><b>
+												<?php
+								$totvol = 0;
+								foreach($mutprosj as $itemv) {
+								if($itemv['soilid'] == $key['soilid']){
+									if($_GET['mutprosj_projectid'] == 5){
+										$totvol = $totvol + cubicationgeo($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+									} else {
+										$totvol = $totvol + cubication($itemv['length'],$itemv['wide'],$itemv['high'],$itemv['plus']);
+									}			
+							}
+						}
+						echo $totvol. " m3";
+						$grandtotalm3 = $totvol + $grandtotalm3;
+						?>
+											</b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b>
+												<?php
+							$totritparcel = 0;
+							foreach($ritvsupp as $itemv) {
+							if($itemv['soilid'] == $key['soilid']){
+							$totritparcel = $totritparcel + $itemv['rit'];
+						}
+						}
+						echo $totritparcel. " rit";
+						$grandtotalrit = $totritparcel + $grandtotalrit;
+						?>
+											</b></h4>
+									</center>
+								</td>
+								<?php }?>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalm3. " m3";?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalrit. " rit";?></b></h4>
+									</center>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<?php }
+	}?>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "mutprovolSummary") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('Report Mutation SJ '); ?></b>
+						<?php if($_GET['mutprovol_vsuppid'] == 0){?>
+						<small><?php _e(' All Supplier'); ?></small>
+						<?php } else {?>
+						<small><?php _e(' Supplier : '.getSingleValue("vehiclesupplier","name",$_GET['mutprovol_vsuppid'])); ?></small>
+						<?php }?>
+					</h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['mutprovol_projectid']) && $_GET['mutprovol_projectid'] != 0) echo "<h4>".__("Projects")." <b>"."[".getSingleValue("projects","code",$_GET['mutprovol_projectid'])."] ".getSingleValue("projects","name",$_GET['mutprovol_projectid'])."</b></h4>"; ?>
+					<?php if($_GET['mutprovol_projectid'] == 0) echo "<h4>Projects <b>All</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<?php if(isset($_GET['detail'])){?>
+					<!-- perDETAIL DATA-->
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th>
+									<center><?php _e('Date'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Code'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Vendor'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Vehicle'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Volume'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Info'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- HEADER SUPPLIER / PROYEK -->
+							<?php 
+					$currvsupp = null;
+					$currproject = null;
+					foreach($mutprovol as $item) {
+					if($_GET['mutprovol_vsuppid'] == 0 && $_GET['mutprovol_projectid'] != 0){ //all supplier one project
+					if($item['vsupp'] != $currvsupp){ //membuat header per record data supplier
+					$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td colspan="5">
+									<h4><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</h4>
+								</td>
+								<td colspan="1">
+									<h4><b>
+											<?php
+							$totvol = 0;
+							foreach($mutprovol as $itemv) {
+							if($itemv['vsupp'] == $currvsupp){
+							$totvol = $totvol + $itemv['volume'];
+						}
+					}
+					if($_GET['mutprovol_projectid'] ==4){
+						echo $totvol." ton";
+					  } else {
+						echo $totvol." m3";
+					  }
+					?>
+										</b></h4>
+								</td>
+								<td>
+									<h4><b>
+											<?php
+					foreach($ritvsupp as $itemv) {
+					if($itemv['vsupp'] == $currvsupp){
+					echo $itemv['rit']." rit";
+				}
+			}				
+			?>
+										</b></h4>
+								</td>
+							</tr>
+							<?php }
+	} else if($_GET['mutprovol_vsuppid'] == 0 && $_GET['mutprovol_projectid'] == 0) { //all supplier & all proyek
+	if($item['projectid'] != $currproject){ //membuat header per record data project
+	$currproject = $item['projectid'];?>
+							<tr>
+								<td colspan="5">
+									<h4><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b></h4>
+								</td>
+								<td colspan="1">
+									<h4><b>
+											<?php
+			$totvol = 0;
+			foreach($mutprovol as $itemv) {
+			if($itemv['projectid'] == $currproject){
+			$totvol = $totvol + $itemv['volume'];
+		}
+	}
+	if($_GET['mutprovol_projectid'] ==4){
+		echo $totvol." ton";
+	  } else {
+		echo $totvol." m3";
+	  }
+	?>
+										</b></h4>
+								</td>
+								<td>
+									<h4><b>
+											<?php
+		foreach($ritvpro as $itemv) {
+		if($itemv['projectid'] == $currproject){
+		echo $itemv['rit']." rit";
+	}
+	}				
+	?>
+										</b></h4>
+								</td>
+							</tr>
+							<?php }
+	}
+	$no++; ?>
+							<!-- DETAIL DATA-->
+							<tr>
+								<td><?php echo "$no"; ?></td>
+								<td>
+									<center><?php echo date('d F Y', strtotime($item['date']));?></center>
+								</td>
+								<td>
+									<center><?php echo $item['code']; ?></center>
+								</td>
+								<td>
+									<center>
+										<?php if($item['vsupp'] == 0){ ?>
+										<span class='text-muted'><?php echo __("undefined")?></span>
+										<?php } else { 
+			   if(in_array("manageVehicleSupplier",$perms) || true) { ?><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']); ?><?php } else { echo getSingleValue("vehiclesupplier","name",$item['vsupp']); }
+			  }?>
+									</center>
+								</td>
+								<td>
+									<center>
+										<?php if($isAdmin || $liu['id'] == $idAdmin){?>
+										<?php echo getSingleValue("vehicles","numberplate",$item['vehicleid']); ?>
+										<?php } else {
+												echo getSingleValue("vehicles","numberplate",$item['vehicleid']);
+											  }?>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h2>
+											<b><?php if($project['id']==4 || $project['id']==32){
+												  echo $item['volume']." ton";
+												} else {
+												  echo $item['volume']." m3";
+												}                                      
+												  ?></b>
+										</h2>
+									</center>
+								</td>
+								<td>
+									<center><?php echo $item['info']; ?></center>
+								</td>
+							</tr>
+							<?php 
+	} 
+	?>
+						</tbody>
+					</table>
+					<?php } else {
+	//not DETAIL DATA ?>
+					<!-- not perPARCEL DATA-->
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<?php if($_GET['mutprovol_projectid'] == 0){?>
+								<th>
+									<center><?php _e('Project'); ?></center>
+								</th>
+								<?php } else if($_GET['mutprovol_vsuppid'] == 0){?>
+								<th>
+									<center><?php _e('Supplier'); ?></center>
+								</th>
+								<?php }?>
+								<th>
+									<center><?php _e('Volume'); ?></center>
+								</th>
+								<th>
+									<center><?php _e('Ritase'); ?></center>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+			$currvsupp = null;
+			$currproject = null;
+			$grandtotalm3 = 0; $grandtotalrit = 0;
+			foreach($mutprovol as $item) {
+			if($_GET['mutprovol_vsuppid'] == 0 && $_GET['mutprovol_projectid'] != 0){ //all supplier one proyek
+			if($item['vsupp'] != $currvsupp){ //membuat header per record data supplier
+			$currvsupp = $item['vsupp'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("vehiclesupplier","name",$item['vsupp']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+					$totvol = 0;
+					foreach($mutprovol as $itemv) {
+					if($itemv['vsupp'] == $currvsupp){
+					$totvol = $totvol+$itemv['volume'];
+				}
+			}
+			if($_GET['mutprovol_projectid'] ==4){
+				echo $totvol." ton";
+			  } else {
+				echo $totvol." m3";
+			  }
+			$grandtotalm3 = $grandtotalm3+$totvol;
+			?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			$totrit = 0;
+			foreach($ritvsupp as $itemv) {
+			if($itemv['vsupp'] == $currvsupp){
+			echo $itemv['rit']." rit";
+			$totrit = $totrit + $itemv['rit'];
+			$grandtotalrit = $grandtotalrit + $itemv['rit'];
+		}
+	}				
+	?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	} else if($_GET['mutprovol_vsuppid'] == 0 && $_GET['mutprovol_projectid'] == 0) { //all supplier all proyek
+	if($item['projectid'] != $currproject){ //membuat header per record data proyek
+	$currproject = $item['projectid'];?>
+							<tr>
+								<td>
+									<center><b><?php echo getSingleValue("projects","name",$item['projectid']);?></b>
+									</center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+			$totvol = 0;
+			foreach($mutprovol as $itemv) {
+			if($itemv['projectid'] == $currproject){
+			$totvol = $totvol + $itemv['volume'];
+		}
+	}
+	if($currproject==4){
+		echo $totvol." ton";
+	  } else {
+		echo $totvol." m3";
+	  }
+	  $grandtotalm3 = $grandtotalm3+$totvol;
+	?>
+										</b></center>
+								</td>
+								<td>
+									<center><b>
+											<?php
+		foreach($ritvpro as $itemv) {
+		if($itemv['projectid'] == $currproject){
+		echo $itemv['rit']." rit";
+		$grandtotalrit = $grandtotalrit + $itemv['rit'];
+	}
+	}				
+	?>
+										</b></center>
+								</td>
+							</tr>
+							<?php }
+	} else {
+		$grandtotalm3 = $grandtotalm3 + $item['volume'];
+		foreach($ritvsupp as $itemv) {
+			$grandtotalrit = $itemv['rit'];
+	}
+	}
+	$no++; ?>
+							<?php 
+	} 
+	?>
+							<tr>
+								<td>
+									<center>
+										<h4><b><?php echo "Grand Total";?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php 
+												if($_GET['mutprovol_projectid'] ==4){
+												echo $grandtotalm3." ton";
+											  } else {
+												echo $grandtotalm3." m3";
+											  }?></b></h4>
+									</center>
+								</td>
+								<td>
+									<center>
+										<h4><b><?php echo $grandtotalrit. " rit";?></b></h4>
+									</center>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<?php 
+	}?>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "ticketsSummary") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed on:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<?php if(!isset($_GET['related'])){?>
+				<div class="col-xs-6">
+					<h4><b><?php _e($_GET['status'].' Tickets Period Report'); ?></b></h4>
+				</div>
+				<?php } else {?>
+				<div class="col-xs-6">
+					<h4>
+						<b><?php _e($_GET['status'].' Tickets Period Report '); ?></b><small><?php _e(' Related Assets Broken'); ?></small>
+					</h4>
+				</div>
+				<?php }?>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if($_GET['clientid'] == 0) echo "<h4>Client <b>All</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="9"><span class="lead"><b><?php _e('TICKETS'); ?></b>
+										<?php if($isAdmin){ ?>
+										<small>
+											|| All : <?php echo $countTicketscurmonth;?> ||
+											Closed : <?php echo $countdoneTicketscurmonth;?> ||
+											UnClosed : <?php echo $countTicketscurmonth - $countdoneTicketscurmonth;?>
+											||
+										</small>
+										<small class="pull-right">Presentase Done Tickets :
+											<?php echo round($presentaseDoneTickets);?> %</small>
+										<?php }?>
+									</span></th>
+
+							</tr>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Ticket'); ?></th>
+								<th><?php _e('Tickets Date'); ?></th>
+								<th><?php _e('Date Closed'); ?></th>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Asset'); ?></th>
+								<th><?php _e('Subject'); ?></th>
+								<th><?php _e('Status'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($tickets as $task) { 
+					$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo $task['ticket']; ?></td>
+								<td><?php echo substr($task['timestamp'],0,10); ?></td>
+								<td>
+									<?php if(is_null($task['dateclosed'])) echo "<span class='text-muted'>".__("Not Yet")."</span>"; else echo substr($task['dateclosed'],0,10); ?>
+								</td>
+								<td><?php echo getSingleValue("clients","name",$task['clientid']); ?></td>
+								<td>
+									<?php if($task['assetid'] != 0) {  
+							echo getSingleValue("assets","tag",$task['assetid']); ?>
+									<br>
+									<?php echo getSingleValue("assets","name",$task['assetid']);
+						} else {  
+						echo "<span class='text-muted'>".__("General")."</span>"; }?>
+								</td>
+								<td><?php echo $task['subject']; ?></td>
+								<td>
+									<?php if($task['dateclosed'] > $enddate) echo "In Progress"; else echo $task['status']; ?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "issuesticketsSummary") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed On:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('Laporan Permintaan Online'); ?></b></h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="9"><span class="lead"><b><?php _e('TICKETS'); ?></b>
+										<?php if($isAdmin){ ?>
+										<small>
+											|| All : <?php echo $countTicketscurmonth;?> ||
+											Closed : <?php echo $countdoneTicketscurmonth;?> ||
+											UnClosed : <?php echo $countTicketscurmonth - $countdoneTicketscurmonth;?>
+											||
+										</small>
+										<small class="pull-right">Presentase Done Tickets :
+											<?php echo round($presentaseDoneTickets);?> %</small>
+										<?php }?>
+									</span></th>
+
+							</tr>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th><?php _e('Ticket'); ?></th>
+								<th><?php _e('Tickets Date'); ?></th>
+								<th><?php _e('Date Closed'); ?></th>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Asset'); ?></th>
+								<th><?php _e('Subject'); ?></th>
+								<th><?php _e('Status'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($tickets as $task) { 
+					$no++; ?>
+							<tr>
+								<td><?php  echo "$no"; ?></td>
+								<td><?php echo $task['ticket']; ?></td>
+								<td><?php echo substr($task['timestamp'],0,10); ?></td>
+								<td>
+									<?php if(is_null($task['dateclosed'])) echo "<span class='text-muted'>".__("Not Yet")."</span>"; else echo substr($task['dateclosed'],0,10); ?>
+								</td>
+								<td><?php echo getSingleValue("clients","name",$task['clientid']); ?></td>
+								<td>
+									<?php if($task['assetid'] != 0) {  
+							echo getSingleValue("assets","tag",$task['assetid']); ?>
+									<br>
+									<?php echo getSingleValue("assets","name",$task['assetid']);
+						} else {  
+						echo "<span class='text-muted'>".__("General")."</span>"; }?>
+								</td>
+								<td><?php echo $task['subject']; ?></td>
+								<td><?php if($task['dateclosed'] > $enddate) echo "In Progress"; else echo $task['status']; ?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="9"><span class="lead"><b><?php _e('ISSUES'); ?></b>
+										<?php if($isAdmin){ ?>
+										<small>
+											|| All : <?php echo $countIssuescurmonth;?> ||
+											Done : <?php echo $countdoneIssuescurmonth;?> ||
+											UnDone : <?php echo $countundoneIssuescurmonth;?> ||
+										</small>
+										<small class="pull-right">Presentase Done Issues :
+											<?php echo round($presentaseDoneIssues);?>%</small>
+										<?php }?>
+									</span></th>
+							</tr>
+							<tr>
+								<th><?php _e('No'); ?></th>
+								<th width="90"><?php _e('Issue Date'); ?></th>
+								<th width="90"><?php _e('Date Done'); ?></th>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Project'); ?></th>
+								<th><?php _e('Name'); ?></th>
+								<th><?php _e('Type'); ?></th>
+								<th><?php _e('Status'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($issues as $task) {  ?>
+							<?php $no++;?>
+							<tr>
+								<td><?php echo "$no"; ?></td>
+								<td><?php echo substr($task['dateadded'],0,10);?></td>
+								<td>
+									<?php if(is_null($task['datedoneed'])) echo "<span class='text-muted'>".__("Not Yet")."</span>"; else echo substr($task['datedoneed'],0,10); ?>
+								</td>
+								<td><?php echo getSingleValue("people","name",$task['clientid']); ?></td>
+								<!--<td><?php echo getSingleValue("assets","tag",$task['assetid']); ?><br><?php echo getSingleValue("assets","name",$task['assetid']); ?></td>-->
+								<td>
+									<?php if($task['projectid'] != 0) echo getSingleValue("projects","name",$task['projectid']); else echo "<span class='text-muted'>".__("None")."</span>"; ?>
+								</td>
+								<td><?php echo $task['name']; ?></td>
+								<td><?php echo $task['issuetype']; ?></td>
+								<td><?php if($task['datedoneed'] > $enddate) echo "In Progress"; else echo $task['status']; ?>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<?php if($isAdmin){ ?>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="8">
+									<span class="lead">
+										<b>Presentase Rata-Rata Ticket & Issue</b>
+										<small class="pull-right">Presentase Done Tickets & Issues :
+											<?php echo $presentaseAllcurmonth;?>%</small>
+									</span>
+								</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+			<?php }?>
+			<div class="pull-right">
+				<i><b>F.EDP.04.00</b></i>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+			<?php } elseif($_GET['report'] == "graphReport") { ?>
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Printed On:'); ?>
+							<?php echo date('d-m-Y'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('GRAPH TICKETS & ISSUES Period Report'); ?></b></h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<!-- BAR CHART -->
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<i class="fa fa-clock-o"></i>
+						<h3 class="box-title"><?php _e('Presentase Tickets per Month'); ?></h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<canvas id="ticketsChart" style="height:250px"></canvas>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<div class="row">
+				<!-- BAR CHART -->
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<i class="fa fa-clock-o"></i>
+						<h3 class="box-title"><?php _e('Presentase Issues per Month'); ?></h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<canvas id="issuesChart" style="height:250px"></canvas>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<div class="row">
+				<!-- BAR CHART -->
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<i class="fa fa-clock-o"></i>
+						<h3 class="box-title"><?php _e('Presentase Tickets & Issues per Month'); ?></h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<canvas id="ticketsissuesChart" style="height:250px"></canvas>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+
+				</div>
+				<div class="col-xs-6" align="center">
+					<center>Kudus, <?php echo date("d M Y", strtotime(date('d-m-Y'))); ?></center>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<center>Mengetahui,</center>
+				</div>
+				<div class="col-xs-6" align="center">
+					<center>Hormat kami,</center>
+				</div>
+			</div>
+			<br><br><br><br><br><br>
+			<div class="row">
+				<div class="col-xs-6">
+					<center>
+						<select class="select2" id="admin" name="admin" style="width: 100%;">
+							<option value=""><?php echo getconfigvalue("company_manager");?></option>
+						</select>
+					</center>
+				</div>
+				<div class="col-xs-6">
+					<?php $admins = $database->select("people", "*", ["type" => "admin"]); ?>
+					<center>
+						<select class="select2" id="admin" name="admin" style="width: 100%;">
+							<?php foreach($admins as $admin) { ?>
+							<option value=""><?php echo $admin['name']; ?></option>
+							<?php } ?>
+						</select>
+					</center>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<center>Pimpinan</center>
+				</div>
+				<div class="col-xs-6">
+					<center>IT Department</center>
+				</div>
+			</div>
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+			<?php } elseif($_GET['report'] == "summary") { ?>
+
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Date:'); ?>
+							<?php echo date('Y-m-d'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('ASSETS & LICENSES SUMMARY'); ?></b></h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="7"><span class="lead"><b><?php _e('ASSETS'); ?></b></span></th>
+							</tr>
+							<tr>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Tag'); ?></th>
+								<th><?php _e('Name'); ?></th>
+								<th><?php _e('Category'); ?></th>
+								<th><?php _e('Model'); ?></th>
+								<th><?php _e('Status'); ?></th>
+								<th><?php _e('Serial'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($assets as $asset) { $manufacturerid = getSingleValue("models","manufacturerid",$asset['modelid']); ?>
+							<tr>
+								<td><?php echo getSingleValue("clients","name",$asset['clientid']); ?></td>
+								<td><?php echo $asset['tag']; ?></td>
+								<td><?php echo $asset['name']; ?></td>
+								<td><?php echo getSingleValue("assetcategories","name",$asset['categoryid']); ?></td>
+								<td>
+									<?php echo getSingleValue("manufacturers","name",$manufacturerid)." ".getSingleValue("models","name",$asset['modelid']); ?>
+								</td>
+								<td><?php echo getSingleValue("labels","name",$asset['statusid']); ?></td>
+								<td><?php echo $asset['serial']; ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="7"><span class="lead"><b><?php _e('LICENSES'); ?></b></span></th>
+							</tr>
+							<tr>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('Tag'); ?></th>
+								<th><?php _e('Category'); ?></th>
+								<th><?php _e('Name'); ?></th>
+								<th><?php _e('Status'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($licenses as $license) { ?>
+							<tr>
+								<td><?php echo getSingleValue("clients","name",$license['clientid']); ?></td>
+								<td><?php echo $license['tag']; ?></td>
+								<td><?php echo getSingleValue("licensecategories","name",$license['categoryid']); ?>
+								</td>
+								<td><?php echo $license['name']; ?></td>
+								<td><?php echo getSingleValue("labels","name",$license['statusid']); ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } elseif($_GET['report'] == "userSummary") { ?>
+
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"><i class="fa fa-globe"></i>
+						<?php echo getConfigValue("company_name"); ?><small class="pull-right"><?php _e('Date:'); ?>
+							<?php echo date('Y-m-d'); ?></small></h2>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<h4><b><?php _e('ASSETS SUMMARY'); ?></b></h4>
+				</div>
+				<div class="col-xs-6 text-right">
+					<?php if(isset($_GET['clientid']) && $_GET['clientid'] != 0) echo "<h4>".__("Client")." <b>".getSingleValue("clients","name",$_GET['clientid'])."</b></h4>"; ?>
+					<?php if(isset($_GET['startDate']) && isset($_GET['endDate'])) echo "<h4>".__("Date range")." <b>".$_GET['startDate']." - ".$_GET['endDate']."</b></h4>"; ?>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-xs-12 table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th colspan="7"><span class="lead"><b><?php _e('ASSETS'); ?></b></span></th>
+							</tr>
+							<tr>
+								<th><?php _e('Client'); ?></th>
+								<th><?php _e('User'); ?></th>
+								<th><?php _e('Tag'); ?></th>
+								<th><?php _e('Name'); ?></th>
+								<th><?php _e('Category'); ?></th>
+								<th><?php _e('Model'); ?></th>
+								<th><?php _e('Status'); ?></th>
+								<th><?php _e('Serial'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($assets as $asset) { $manufacturerid = getSingleValue("models","manufacturerid",$asset['modelid']); ?>
+							<tr>
+								<td><?php echo getSingleValue("clients","name",$asset['clientid']); ?></td>
+								<td><?php echo getSingleValue("people","name",$asset['userid']); ?></td>
+								<td><?php echo $asset['tag']; ?></td>
+								<td><?php echo $asset['name']; ?></td>
+								<td><?php echo getSingleValue("assetcategories","name",$asset['categoryid']); ?></td>
+								<td>
+									<?php echo getSingleValue("manufacturers","name",$manufacturerid)." ".getSingleValue("models","name",$asset['modelid']); ?>
+								</td>
+								<td><?php echo getSingleValue("labels","name",$asset['statusid']); ?></td>
+								<td><?php echo $asset['serial']; ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- this row will not appear when printing -->
+			<div class="row no-print">
+				<div class="col-xs-12">
+					<button onClick="window.print();" class="btn btn-default pull-right"><i class="fa fa-print"></i>
+						<?php _e('Print'); ?></button>
+				</div>
+			</div>
+
+			<?php } ?>
+
+		</section>
+	</section>
+	<!-- /.content -->
+</aside><!-- /.right-side -->
+<!-- ChartJS 1.0.1 -->
+<script src="template/assets/plugins/chartjs/Chart.min.js"></script>
+
+<?php
+	$last6F = array();
+	$last6YM = array();
+	
+	$startDate = new DateTime('first day this month - 7 months');
+	$endDate   = new DateTime('first day this month');
+	$interval  = new DateInterval('P1M'); // P1M => 1 month per iteration
+	
+	$datePeriod = new DatePeriod($startDate, $interval, $endDate);
+	
+	foreach($datePeriod as $dt) {
+	array_push($last6F, $dt->format('F'));
+	}
+	
+	foreach($datePeriod as $dt) {
+	array_push($last6YM, $dt->format('Y-m'));
+	}
+	
+	//print_r($last6YM);
+	
+	?>
+
+<script>
+	$(function() {
+		var areaChartData = {
+			labels: ["<?php echo date('M Y', strtotime($curmonth. ' - 4 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 3 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 2 month')); ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 1 month')); ?>", "<?php echo $curmonth; ?>"
+			],
+			datasets: [{
+				fillColor: "rgba(60,141,188,0.9)",
+				data: [ <
+					?
+					php
+					if ($isAdmin) echo "$presentaseTicketsminfour"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseTicketsminthree"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseTicketsmintwo"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseTicketsminone"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseTicketscurmonth"; ? >
+				]
+			}]
+		};
+		//-------------
+		//- TICKETS BAR CHART -
+		//-------------
+		var barChartCanvasz = $("#ticketsChart").get(0).getContext("2d");
+		var barChart = new Chart(barChartCanvasz);
+		var barChartData = areaChartData;
+		var barChartOptions = {
+			scaleBeginAtZero: true,
+			scaleShowGridLines: true,
+			scaleGridLineColor: "rgba(0,0,0,.05)",
+			scaleGridLineWidth: 1,
+			scaleShowHorizontalLines: true,
+			scaleShowVerticalLines: true,
+			barShowStroke: true,
+			barStrokeWidth: 5,
+			barValueSpacing: 30,
+			barDatasetSpacing: 1,
+			legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+			responsive: true,
+			maintainAspectRatio: true
+		};
+		barChartOptions.datasetFill = false;
+		barChart.Bar(barChartData, barChartOptions);
+		var areaChartDatas = {
+			labels: ["<?php echo date('M Y', strtotime($curmonth. ' - 4 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 3 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 2 month')); ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 1 month')); ?>", "<?php echo $curmonth; ?>"
+			],
+			datasets: [{
+				fillColor: "rgba(60,141,188,0.9)",
+				data: [ <
+					?
+					php
+					if ($isAdmin) echo "$presentaseIssuesminfour"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseIssuesminthree"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseIssuesmintwo"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseIssuesminone"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseIssuescurmonth"; ? >
+				]
+			}]
+		};
+		//-------------
+		//- ISSUES BAR CHART -
+		//-------------
+		var barChartCanvas = $("#issuesChart").get(0).getContext("2d");
+		var barChart = new Chart(barChartCanvas);
+		var barChartData = areaChartDatas;
+		var barChartOptionss = {
+			scaleBeginAtZero: true,
+			scaleShowGridLines: true,
+			scaleGridLineColor: "rgba(0,0,0,.05)",
+			scaleGridLineWidth: 1,
+			scaleShowHorizontalLines: true,
+			scaleShowVerticalLines: true,
+			barShowStroke: true,
+			barStrokeWidth: 5,
+			barValueSpacing: 30,
+			barDatasetSpacing: 1,
+			legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+			responsive: true,
+			maintainAspectRatio: true
+		};
+		barChartOptionss.datasetFill = false;
+		barChart.Bar(barChartData, barChartOptionss);
+		var areaChartDatass = {
+			labels: ["<?php echo date('M Y', strtotime($curmonth. ' - 4 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 3 month'));; ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 2 month')); ?>",
+				"<?php echo date('M Y', strtotime($curmonth. ' - 1 month')); ?>", "<?php echo $curmonth; ?>"
+			],
+			datasets: [{
+				fillColor: "rgba(60,141,188,0.9)",
+				data: [ <
+					?
+					php
+					if ($isAdmin) echo "$presentaseAllminfour"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseAllminthree"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseAllmintwo"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseAllminone"; ? > , <
+					?
+					php
+					if ($isAdmin) echo "$presentaseAllcurmonth"; ? >
+				]
+			}]
+		};
+		//-------------
+		//- ISSUES BAR CHART -
+		//-------------
+		var barChartCanvass = $("#ticketsissuesChart").get(0).getContext("2d");
+		var barChart = new Chart(barChartCanvass);
+		var barChartData = areaChartDatass;
+		var barChartOptionss = {
+			scaleBeginAtZero: true,
+			scaleShowGridLines: true,
+			scaleGridLineColor: "rgba(0,0,0,.05)",
+			scaleGridLineWidth: 1,
+			scaleShowHorizontalLines: true,
+			scaleShowVerticalLines: true,
+			barShowStroke: true,
+			barStrokeWidth: 5,
+			barValueSpacing: 30,
+			barDatasetSpacing: 1,
+			legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+			responsive: true,
+			maintainAspectRatio: true
+		};
+		barChartOptionss.datasetFill = false;
+		barChart.Bar(barChartData, barChartOptionss);
+	});
+</script>

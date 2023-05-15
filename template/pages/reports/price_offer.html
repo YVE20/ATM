@@ -1,0 +1,210 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 4.5cm 1.5cm 2cm 1.5cm;
+        }
+
+        @media print {
+
+            .table-bordered,
+            .table-bordered>thead>tr>th,
+            .table-bordered>tbody>tr>td {
+                border: 1px solid black !important;
+            }
+
+        }
+
+        .backgrey {
+            background-color: #ccc !important;
+        }
+
+        body {
+            font-family: 'Times New Roman';
+            font-size: 12;
+            -webkit-print-color-adjust: exact;
+
+        }
+
+        p {
+            text-align: justify;
+        }
+
+        table {
+            border: 0px;
+            width: 100%;
+        }
+
+        .table-bordered,
+        .table-bordered>thead>tr>th,
+        .table-bordered>tbody>tr>td {
+            border: 1px solid black;
+        }
+
+        .table-bordered {
+            border-collapse: collapse;
+        }
+
+        .table-center {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+    <!-- Main content -->
+    <section class="content">
+        <section class="invoice">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div>
+                        <span>Nomor: <?= $priceoffer['no_price_offer']; ?></span>
+                        <span style="float: right">Kudus, <?= tgl_indo($priceoffer['date']) ?></span>
+                        <br>
+                        <span>Perihal: <b><?php if($priceoffer['nego'] != 0) echo "Nego ";?>Penawaran Harga</b></span>
+                    </div>
+                    <br>
+                    <p>
+                        Kepada Yth.,<br>
+                        <b>
+                            <?= nl2br($priceoffer['address']) ?>
+                        </b><br>
+                        Di Tempat
+                    </p>
+                    <p>
+                        <b>
+                            <?php if($priceoffer['up_to']!="") echo "UP : ".$priceoffer['up_to'];?>
+                        </b>
+                    </p>
+                    <div>
+                        Dengan hormat,
+                    </div>
+                    <div style="margin-left: 50px">
+                        Bersama surat ini kami bermaksud mengajukan penawaran harga, sebagai berikut :
+                    </div>
+
+                    <table class="table table-bordered table-responsive">
+                        <thead class="backgrey">
+                            <th width=10px>
+                                <center>No</center>
+                            </th>
+                            <th>
+                                <center>Item Pekerjaan</center>
+                            </th>
+                            <th>
+                                <center>Satuan</center>
+                            </th>
+                            <th>
+                                <center>Harga Satuan (Rp)</center>
+                            </th>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($items as $item => $items) { ?>
+                            <tr>
+
+                                <td>
+                                    <center><?= $item+ 1 ?>.</center>
+                                </td>
+                                <td><?= $items['items']; ?></td>
+                                <td>
+                                    <center><?= $database->get("size", "name", ["id" => $items['sizeid']]); ?></center>
+                                </td>
+                                <td>
+                                    <div class="pull-right"><?= number_format($items['unit_price'],0,",",".");?></div>
+                                </td>
+                            </tr>
+                            <?php }?>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 10px">
+                        <?php if($priceoffer['description']!= "" and $priceoffer['description']!="-"){
+                            echo "Deskripsi item : ";?>
+                        <div style="margin-left: 50px">
+                            <?php echo $priceoffer['description'];?>
+                        </div>
+                        <?php }?>
+                    </div>
+
+                    <div style="margin-top: 10px">
+                        <b>Kondisi Penawaran Harga :</b>
+                    </div>
+
+                    <table style="margin-left: 50px">
+                        <thead>
+                            <tr>
+                                <th style="width: 5mm;"></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1.</td>
+                                <td><?php if($priceoffer['ppn10']==0) echo "Harga belum termasuk PPN 10%."; else echo "Harga sudah termasuk PPN 10%.";?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2.</td>
+                                <td><?php if($priceoffer['pph']==0) echo "Harga belum termasuk PPh."; else echo "Harga sudah termasuk PPh.";?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3.</td>
+                                <td><?php 
+                                    echo "Sistem Pembayaran ".getSingleValue("payment_method", "name", $priceoffer['payment_methodid'])." ".$priceoffer['payment_duration']." hari.";
+                                    ?></td>
+                            </tr>
+                            <tr>
+                                <td>4.</td>
+                                <td><?php 
+                                    echo "Harga ".getSingleValue("freight", "name", $priceoffer['freightid'])." ".$priceoffer['freight_destination'].".";
+                                    ?></td>
+                            </tr>
+                            <tr>
+                                <td>5.</td>
+                                <td><?php 
+                                    if($priceoffer['valid_for']==0)
+                                    echo "Harga tidak mengikat, sewaktu-waktu dapat berubah";
+                                    else 
+                                    echo "Penawaran harga ini berlaku untuk ".$priceoffer['valid_for']." hari.";
+                                    ?></td>
+                            </tr>
+                            <tr>
+                                <td>6.</td>
+                                <td><?php 
+                                    echo "Apabila terdapat penambahan item pekerjaan di luar penawaran ini, maka akan dilakukan negosiasi tentang item pekerjaan tersebut.";
+                                    ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <div>Hormat kami,</div>
+                    <div><b>PT. SARANA BANGUN PUSAKA</b></div>
+
+                    <div style="margin-top: 27mm;">
+                        <b>
+                            <?php echo $priceoffer['ttd'];?>
+                        </b>
+                    </div>
+                    <span>
+                        <?php if($priceoffer['ttd']=='Vivit Dwi H') echo "General Manager";
+                        else if($priceoffer['ttd']=='Eko Sunu') echo "Marketing";?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- this row will not appear when printing -->
+            <div class="row no-print">
+                <div class="col-xs-12">
+                    <button onClick="window.print();" class="btn btn-default btn-sm pull-right"><i
+                            class="fa fa-print"></i>
+                        <?php _e('Print'); ?>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+        </section>
+    </section>
+</aside>
+
+<!-- Main content -->

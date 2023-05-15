@@ -1,0 +1,91 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">
+<?php _e('ADD PENAWARAN '); ?>
+</h4>
+</div>
+<div class="modal-body">
+<div class="form-content">
+<div class="row group">
+<div class="col-xs-6">
+    <p><button type="button" id="btnAdd" class="btn btn-primary">Add More</button></p>
+    
+<button type="button" class="btn btn-danger btnRemove"><i class="fa fa-trash-o"></i></button>
+
+</div>
+<div class="col-xs-12">
+  <div class="form-group">
+    <label for="nama">
+        <?php _e('Nama'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="nama" name="nama" required>
+    </div>
+  </div> 
+    <div class="col-xs-12">
+  <div class="form-group">
+    <label for="harga">
+        <?php _e('Tawaran Harga'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="harga" name="harga" required>
+    </div>   
+  </div>
+
+    <div class="col-xs-12">
+      <div class="form-group">
+          <label for="id_sizecat"><?php _e('Size Kategori'); ?> *</label>
+          <select class="form-control" id="id_sizecat" name="id_sizecat[]"  style="width: 100%;"
+          tabindex="-1" aria-hidden="true">   <?php foreach ($sc as $item) { ?>
+                  <option value='<?php echo $item['id']; ?>'>
+                          <?php echo $item['name']; ?>                
+                  </option>
+                  <?php } ?>
+          </select>
+      </div>
+  </div>
+<div class="col-xs-12">
+  <div class="form-group">
+    <label for="loading">
+        <?php _e('Loading'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="loading" name="loading" required>
+    </div>
+  </div> 
+    <div class="col-xs-12">
+  <div class="form-group">
+    <label for="destination">
+        <?php _e('Destination'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="destination" name="destination" required>
+    </div>   
+  </div>
+
+</div>
+</div>
+<input type="hidden" name="action" value="addVendorTender">
+<input type="hidden" name="id_tender" value="<?php echo $_GET['id_tender']; ?>">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+  <?php _e('Cancel'); ?></button>
+  <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i>
+      <?php _e('Create'); ?></button>
+  </div>
+  
+<script src="template/assets/plugins/multifield/jquery.multifield.min.js"></script>
+  <script type="text/javascript">
+      $(function() { $(".select2").select2(); });
+
+
+
+$(function () { $(".select2").select2(); });
+$(function () {
+$('.form-content').multifield({
+    section: '.group',
+    btnAdd: '#btnAdd',
+    btnRemove: '.btnRemove',
+});
+});
+  </script>

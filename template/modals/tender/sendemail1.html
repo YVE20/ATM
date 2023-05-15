@@ -1,0 +1,41 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+      aria-hidden="true">&times;</span></button>
+  <h4 class="modal-title">
+    <?php _e('SEND TENDER '); ?>
+  </h4>
+</div>
+<div class="modal-body">
+
+  <form method="post" action="class.tender.php">
+    <div class="form-group">
+      <label for="tujuan">
+        <?php _e('Email'); ?> *</label>
+      <textarea type="hidden" class="form-control summernote" rows="1"
+        name="tujuan"><?php foreach ($tv as $item) { ?> <?php echo $item['email']; ?>, <?php } ?></textarea></div>
+
+    <input type="hidden" name="tujuan" <?php foreach ($tv as $item) { ?> value="<?php echo $item['email']; ?>" ,
+      <?php } ?>>
+    <div class="form-group">
+      <label for="subjek">
+        <?php _e('Subjek'); ?> *</label>
+      <input type="text" class="form-control" name="subjek">
+    </div>
+
+    <div class="form-group">
+      <label for="pesan"><?php _e('Pesan'); ?></label>
+      <textarea class="form-control summernote" rows="5" name="pesan">
+<h3>Kepada Yth : Mitra PT. Sarana Bangun Pusaka </h3>
+    <p>
+Pengumuman dapat dilihat disini : <?php echo $item['kode']; ?></p></textarea>
+    </div>
+    <input type="hidden" name="action" value="sendEmail1">
+    <input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+    <?php if(isset($_GET['section'])){?>
+    <input type="hidden" name="section" value="vendor">
+    <?php }?>
+    <?php if(isset($_GET['routeid'])){?>
+    <input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+    <?php }?>
+    <input type="submit" class="btn btn-success" name="kirim" value="Kirim Pesan" />
+  </form>
+</div>

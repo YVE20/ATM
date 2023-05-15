@@ -1,0 +1,7 @@
+upload/
+uploads/
+includes/database.php
+
+# all vendor except classes
+vendor/*
+!vendor/classes

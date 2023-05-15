@@ -1,0 +1,179 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+    aria-hidden="true">&times;</span></button>
+<h4 class="modal-title"><?php _e('Edit Vendor'); ?><small>
+    <?php _e($vr['name']);?></small></h4>
+</div>
+<div class="modal-body">
+<div class="form-group">
+<div class="form-group">
+<label for="name">
+    <?php _e('Nama Vendor'); ?> *</label>
+<input type="text" class="form-control" autocomplete="off" id="name" name="name"
+    value="<?php echo $vr['name'];?>" required>
+</div>
+<div class="form-group">
+    <label for="alamat">
+        <?php _e('Alamat Vendor'); ?> *</label>
+    <input type="text" class="form-control" autocomplete="off" id="alamat" name="alamat"
+        value="<?php echo $vr['alamat'];?>" required>
+    </div>
+<div class="form-group">
+    <label for="province"><?php _e('Province'); ?> *</label>
+    <select class="form-control select2 select2-hidden-accessible" required id="province" name="province"
+        style="width: 100%;" tabindex="-1" aria-hidden="true">
+        <option value=''><?php echo "None"; ?></option>
+        <?php foreach ($provinces as $province) { ?>
+        <option value='<?php echo $province['id']; ?>'
+            <?php if($vr['province'] == $province['id']) echo "selected"; ?>><?php echo $province['name']; ?>
+        </option>
+        <?php } ?>
+    </select>
+    </div>
+    <div class="form-group">
+    <label for="regency"><?php _e('Regency'); ?> *</label>
+    <select class="form-control select2 select2-hidden-accessible" required id="regency" name="regency"
+        style="width: 100%;" tabindex="-1" aria-hidden="true">
+        <option value=''><?php echo "Undefined"; ?></option>
+        <?php foreach ($regencies as $item) { ?>
+        <option value='<?php echo $item['id']; ?>' <?php if($vr['regency'] == $item['id']) echo "selected"; ?>>
+            <?php echo $item['name']; ?></option>
+        <?php } ?>
+    </select>
+    </div></div>
+    <div class="form-group">
+        <label for="kode_pos">
+            <?php _e('Kode Pos'); ?></label>
+        <input type="text" class="form-control" autocomplete="off" id="kode_pos" name="kode_pos"
+            value="<?php echo $vr['kode_pos'];?>">
+        </div>
+        <div class="form-group">
+            <label for="mobile">
+                <?php _e('Nomor Telp'); ?></label>
+            <input type="text" class="form-control" autocomplete="off" id="mobile" name="mobile"
+                value="<?php echo $vr['mobile'];?>" >
+            </div>
+            <div class="form-group">
+                <label for="email">
+                    <?php _e('Email'); ?></label>
+                <input type="text" class="form-control" autocomplete="off" id="email" name="email"
+                    value="<?php echo $vr['email'];?>" >
+                </div>
+                <div class="form-group">
+                    <label for="fax">
+                        <?php _e('FAX'); ?></label>
+                    <input type="text" class="form-control" autocomplete="off" id="fax" name="fax"
+                        value="<?php echo $vr['fax'];?>" >
+                    </div>
+                    <div class="form-group">
+                        <label for="nomor_npwp">
+                            <?php _e('Nomor NPWP'); ?></label>
+                        <input type="text" class="form-control" autocomplete="off" id="nomor_npwp" name="nomor_npwp"
+                            value="<?php echo $vr['nomor_npwp'];?>" >
+                        </div>      <div class="form-group">
+                            <label for="nama_npwp">
+                                <?php _e('Nama NPWP'); ?></label>
+                            <input type="text" class="form-control" autocomplete="off" id="nama_npwp" name="nama_npwp"
+                                value="<?php echo $vr['nama_npwp'];?>" >
+                            </div>     
+                            <div class="form-group">
+                                <label for="alamat_npwp">
+                                    <?php _e('Alamat NPWP'); ?></label>
+                                <input type="text" class="form-control" autocomplete="off" id="alamat_npwp" name="alamat_npwp"
+                                    value="<?php echo $vr['alamat_npwp'];?>" >
+                                </div> <div class="form-group">
+                                <label for="nama_pemilik">
+                                    <?php _e('Nama Pemilik'); ?></label>
+                                <input type="text" class="form-control" autocomplete="off" id="nama_pemilik" name="nama_pemilik"
+                                    value="<?php echo $vr['nama_pemilik'];?>" >
+                                </div>
+
+
+<input type="hidden" name="id" value="<?php echo $vr['id']; ?>">
+<input type="hidden" name="action" value="editVendor">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+<?php _e('Cancel'); ?></button>
+<button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+</div>
+
+<script type="text/javascript">
+
+//chain combo box
+$("#province").change(function () {
+
+// variabel dari nilai combo province
+var province = $("#province").val();
+
+// mengirim dan mengambil data
+$.ajax({
+    type: "POST",
+    dataType: "html",
+    url: 'index.php?qa=province',
+    data: "province=" + province,
+    success: function (msg) {
+
+        // jika tidak ada data
+        if (msg == '') {
+            alert('No Data');
+        }
+
+        // jika dapat mengambil data,, tampilkan di combo box regency
+        else {
+            $("#regency").html(msg);
+        }
+
+    }
+});
+});
+$("#regency").change(function () {
+
+// variabel dari nilai combo regency
+var regency = $("#regency").val();
+
+// mengirim dan mengambil data
+$.ajax({
+    type: "POST",
+    dataType: "html",
+    url: 'index.php?qa=regency',
+    data: "regency=" + regency,
+    success: function (msg) {
+
+        // jika tidak ada data
+        if (msg == '') {
+            alert('No Data');
+        }
+
+        // jika dapat mengambil data,, tampilkan di combo box regency
+        else {
+            $("#district").html(msg);
+        }
+
+    }
+});
+});
+$(function () {
+        $(".select2").select2();
+        $(function () {
+            $(".select2tags").select2({
+                tags: true
+            });
+        });
+        $('#tgl_lahir').datepicker({
+            format: 'yyyy-mm-dd',
+            clearBtn: 'true',
+            todayBtn: "linked",
+            todayHighlight: true,
+            weekStart: '<?php echo getConfigValue("week_start"); ?>',
+            autoclose: true
+        });
+    });
+
+</script>

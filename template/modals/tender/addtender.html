@@ -1,0 +1,39 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">
+<?php _e('ADD VENDOR '); ?>
+</h4>
+</div>
+<div class="modal-body">
+
+<div class="form-group">
+<label for="id_vendor"><?php _e('Vendor'); ?> *</label>
+<select class="form-control select2 select2-hidden-accessible" id="id_vendor" required name="id_vendor" style="width: 100%;" tabindex="-1" aria-hidden="true">
+  <option value='0'><?php echo "Undefined"; ?></option>
+  <?php foreach ($tdr as $item) { ?>
+  <option value='<?php echo $item['id']; ?>'>
+      <?php echo $item['name']; ?>                    
+  </option>
+  <?php } ?>
+</select>
+</div>
+
+<input type="hidden" name="action" value="addVendorTender">
+<input type="hidden" name="id_tender" value="<?php echo $_GET['id_tender']; ?>">
+<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+<?php if(isset($_GET['section'])){?>
+<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+<?php }?>
+<?php if(isset($_GET['routeid'])){?>
+<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+<?php }?>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+  <?php _e('Cancel'); ?></button>
+  <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i>
+      <?php _e('Create'); ?></button>
+  </div>
+  <script type="text/javascript">
+      $(function() { $(".select2").select2(); });
+  </script>

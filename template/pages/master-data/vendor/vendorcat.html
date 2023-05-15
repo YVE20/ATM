@@ -1,0 +1,22 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1 class="center"><?php _e('BELUM JADI BRO'); ?>
+		</h1>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?>
+				</div>
+			</div>
+		</div>
+		<?php endif; ?>
+		</div>
+
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->

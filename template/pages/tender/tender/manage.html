@@ -1,0 +1,932 @@
+<aside class="right-side">
+	<!-- Bootstrap imgViewer -->
+	<link href="template/assets/plugins/imgViewer/jquery.magnify.css" rel="stylesheet">
+	<script src="template/assets/plugins/imgViewer/jquery.magnify.js"></script>
+	<style>
+		.magnify-modal {
+			box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.3);
+		}
+
+		.item {
+			float: left
+		}
+
+		.magnify-stage {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			border-width: 0;
+		}
+
+		.magnify-footer .magnify-toolbar {
+			display: inline-block;
+			height: 40px;
+			background-color: rgba(0, 0, 0, .5);
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+		}
+
+		.magnify-stage img {
+			width: 0;
+		}
+
+		.magnify-loading {
+			background-color: transparent;
+		}
+	</style>
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1><?php echo $tenderr['kode']; ?><small>
+				<?php echo getSingleValue("pengadaan","name",$tenderr['id_pengadaan']); ?></small></h1>
+		<?php
+		if($liu['id']==1 ){
+			if(in_array("viewTender",$perms) || true) { ?>
+		<ol class="breadcrumb">
+			<li><a href="?route=dashboard"><i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li>
+			<li><a href="?route=tender/tender"><?php _e('Tender'); ?></a></li>
+			<li class="active"><?php echo $tenderr['kode']; ?></li>
+		</ol>
+		<?php }
+	} else {
+		if(in_array("viewTender",$perms) || true) { ?>
+		<ol class="breadcrumb">
+			<li><a href="?route=dashboard"><i class="fa fa-dashboard"></i> <?php _e('Home'); ?></a></li>
+			<li class="active"><?php _e('Tender'); ?></li>
+			<li class="active"><?php echo $tenderr['kode']; ?></li>
+		</ol><?php }
+	}?>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<?php if(!empty($statusmessage)): ?>
+		<div class="row">
+			<div class='col-md-12'>
+				<div class="alert alert-<?php print $statusmessage["type"]; ?> alert-auto" role="alert">
+					<?php print __($statusmessage["message"]); ?></div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="row">
+			<div class="col-md-12">
+				<!-- Custom Tabs (Pulled to the right) -->
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs">
+						<li <?php if ($section == "") echo 'class="active"'; ?>><a href="#tab-summary"
+								data-toggle="tab"><?php _e('Tender'); ?></a></li>
+						<?php if($isAdmin){
+									if(in_array("editTender",$perms) || true) { ?>
+						<li <?php if ($section == "vendor") echo 'class="active"'; ?>><a href="#tab-vendor" id="go-vendor"
+								data-toggle="tab"><?php _e('Vendor'); ?></a></li><?php }
+								
+							}?>
+
+						<li <?php if ($section == "penawaran") echo 'class="active"'; ?>><a href="#tab-penawaran" id="go-penawaran"
+								data-toggle="tab"><?php _e('Offer'); ?></a></li>
+						<li <?php if ($section == "evalutionresult") echo 'class="active"'; ?>><a href="#tab-evalutionresult"
+								id="go-evalutionresult" data-toggle="tab"><?php _e('Evalution Result'); ?></a></li>
+								<?php if($isAdmin){
+									if(in_array("editTender",$perms) || true) { ?>
+								<li <?php if ($section == "setting") echo 'class="active"'; ?>><a href="#tab-setting" id="go-setting"
+								data-toggle="tab"><?php _e('Settings'); ?></a></li><?php }
+								
+							}?>
+
+						<div class="btn-group pull-right" style="padding:6px;">
+							<?php if($isAdmin){
+								if(in_array("editTender",$perms) || true) { ?>
+							<a data-toggle='tooltip' title='<?php _e('Edit Vendor Supplier'); ?>'
+								href='?route=tender/tender/edit&id=<?php echo $tenderr['id']; ?>' class='btn btn-default btn-sm'><i
+									class='fa fa-edit'></i></a>&nbsp;
+							<?php }
+								if(in_array("deleteVendor",$perms) || true) {?>
+							<a data-toggle='tooltip' title='<?php _e('Delete Vendor Supplier'); ?>' class="btn btn-danger btn-sm "
+								href="#"
+								onClick='showM("?modal=tender/delete&reroute=tender/tender&id=<?php echo $tenderr['id']; ?>&section=");return false'><i
+									class='fa fa-trash-o'></i></a>
+							<?php }
+							} else {
+							if($liu['clientid']==4){
+							if(in_array("editVendor",$perms) || true) { ?>
+							<a data-toggle='tooltip' title='<?php _e('Edit Vendor Supplier'); ?>'
+								href='?route=tender/tender/edit&id=<?php echo $tenderr['id']; ?>' class='btn btn-default btn-sm'><i
+									class='fa fa-edit'></i></a>&nbsp;
+							<?php }
+								if(in_array("deleteVendor",$perms) || true) {?>
+							<a data-toggle='tooltip' title='<?php _e('Delete Vendor Supplier'); ?>' class="btn btn-danger btn-sm "
+								href="#"
+								onClick='showM("?modal=tender/delete&reroute=tender/tender&id=<?php echo $tenderr['id']; ?>&section=");return false'><i
+									class='fa fa-trash-o'></i></a>
+							<?php }
+							}
+							}?>
+						</div>
+
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane <?php if ($section == "") echo 'active'; ?>" id="tab-summary">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h3 class="box-title"><?php _e('Tender Information'); ?></h3>
+										<div class="pull-right box-tools">
+												<button type="button" class="btn btn-default btn-sm"
+													data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+														class="fa fa-minus"></i></button>
+											</div>
+										</div>
+										<div class="box-body">
+											<table id="clientTable" class="table table-striped table-hover">
+												<tbody>
+													<tr>
+														<td><b><?php _e('Tender Code'); ?></b></td>
+														<td>
+															<?php echo $tenderr['kode']; ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Tender Name'); ?></b></td>
+														<td>
+															<?php echo $tenderr['name']; ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Procurement Type'); ?></b></td>
+														<td>
+															<?php echo getSingleValue("pengadaan","name",$tenderr['id_pengadaan']); ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Department'); ?></b></td>
+														<td>
+															<?php echo getSingleValue("department","name",$tenderr['id_department']); ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Tender Date'); ?></b></td>
+														<td>
+															<?php echo date('d F Y', strtotime($tenderr['tgl_tender'])); ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Requirement Date'); ?></b></td>
+														<td>
+															<?php echo date('d F Y', strtotime($tenderr['tgl_kebutuhan'])); ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Deadline Offer'); ?></b></td>
+														<td>
+															<?php echo date('d F Y', strtotime($tenderr['deadline_offer'])); ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Warehouse Address'); ?></b></td>
+														<td>
+															<?php echo $tenderr['alamat_gudang']; ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Shipping Address'); ?></b></td>
+														<td>
+															<?php echo $tenderr['alamat_kirim']; ?>
+														</td>
+													</tr>
+													<tr>
+														<td><b><?php _e('Information'); ?></b></td>
+														<td>
+															<?php echo $tenderr['keterangan']; ?>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- /.box -->
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h3 class="box-title"><?php _e('Tender Status'); ?></h3>
+											<div class="pull-right box-tools">
+												<?php if(in_array("addStatusTender",$perms) || true) { ?><a
+													data-toggle='tooltip' title='<?php _e('Status Tender'); ?>'
+													class="btn btn-primary btn-sm " href="#"
+													onClick='showM("?modal=tender/statustender&reroute=tender/tender/manage&routeid=<?php echo $_GET['id']; ?>&id_tender=<?php echo $tenderr['id']; ?>&section=");return false'><?php _e('Status Tender'); ?></a><?php } ?>
+									
+												<button type="button" class="btn btn-default btn-sm"
+													data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+														class="fa fa-minus"></i></button>
+											</div>
+										</div>
+										<div class="box-body">
+											<table id="clientTable" class="table table-striped table-hover">
+												<tbody>
+													<tr class="text-center  col-md-12">
+															<?php if($tenderr['status'] == "Open") echo "<td class='badge bg-green'>".__("Open")."</td>"; ?>
+															<?php if($tenderr['status'] == "In Progress") echo "<td class='badge bg-navy'>".__("In Progress")."</td>"; ?>
+															<?php if($tenderr['status'] == "Complete") echo "<td class='badge bg-blue'>".__("Complete")."</td>"; ?>
+															<?php if($tenderr['status'] == "Cancelled") echo "<td class='badge bg-red'>".__("Cancelled")."</td>"; ?>
+															
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+								</div>
+
+								<!--baru-->
+								<div class="col-md-6">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title"><?php _e('Tender Item'); ?></h3>
+											<div class="pull-right box-tools">
+												<button type="button" class="btn btn-default btn-sm"
+													data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+														class="fa fa-minus"></i></button>
+											</div>
+										</div>
+										<div class="box-body">
+											<div class="table-responsive">
+												<table  id="dataTablesFull" class="table table-striped table-hover">
+													<thead>
+														<tr>
+															<th><?php _e('Item Name'); ?></th>
+															<th><?php _e('Volume'); ?></th>
+															<th><?php _e('Information'); ?></th>
+															<th class="text-right"></th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php foreach ($items as $item) { ?>
+														<tr>
+															<td>
+																<?php echo $item['nameitems'];?>
+															</td>
+															<td>
+																<?php echo $item['qty'];?> <?php if($item['id']==0){?>
+																<?php } else { echo getSingleValue("size","name",$item['id_sizecat']); }?>
+															</td>
+															<td>
+																<?php echo $item['info'];?>
+															</td>
+															<td>
+																<div class="text-right">
+																		<a class="btn btn-primary btn-sm" data-magnify="gallery"
+																			data-caption="<?php echo $database->get('files', 'name', ['sj' => $hai['nosj']]);?> "
+																			href="<?php echo "http://".$_SERVER['SERVER_NAME']."/uploads/img/sjguardrail/".$database->get('files', 'file', ['sj' => $hai['nosj']]);?>"><i
+																				class='fa fa-eye'></i></a>
+																	
+																	<?php if($isAdmin){
+																			if(in_array("editTenderItems",$perms) || true) { ?>
+																	<a data-toggle='tooltip' title='<?php _e('Edit Item Tender'); ?>'
+																		class="btn btn-default btn-sm " href="#"
+																		onClick='showM("?modal=tender/editItems&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																			class='fa fa-edit'></i></a>
+																	<?php }
+																		}?>
+																</div>
+															</td>
+														</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
+											<?php if(empty($items)) echo __("There are no Items Tender to display."); ?>
+										</div>
+									</div>
+								</div>
+
+								<!--baru-->
+								<div class="col-md-6">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title"><?php _e('Tender History'); ?></h3>
+											<div class="pull-right box-tools">
+												<button type="button" class="btn btn-default btn-sm"
+													data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+														class="fa fa-minus"></i></button>
+											</div>
+										</div>
+										<div class="box-body">
+											<div class="table-responsive">
+												<table class="table table-striped table-hover">
+													<thead>
+														<tr>
+															<th><?php _e('Tender Code'); ?></th>
+															<th><?php _e('Tender Name'); ?></th>
+															<th><?php _e('Date'); ?></th>
+															<th></th>
+															<th><?php _e('Status'); ?></th>
+															<th class="text-right"></th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php foreach ($statustender as $status ) { ?>
+														<tr>
+															<td>
+																<?php if($status['id']==0){?><span
+																	class='text-muted'><?php echo __("Undefined")?></span>
+																<?php } else { echo getSingleValue("tender","kode",$status['id_tender']); }?></span>
+
+															</td>
+															<td>
+																<?php if($status['id']==0){?><span
+																	class='text-muted'><?php echo __("Undefined")?></span>
+																<?php } else { echo getSingleValue("tender","name",$status['id_tender']); }?></span>
+
+															</td>
+															<td>
+																<?php echo date('d F Y', strtotime($status['timestamp'])); ?>
+															</td>
+															<td>
+															<?php if($status['status'] == "Open") echo "<td class='badge bg-green'>".__("Open")."</td>"; ?>
+															<?php if($status['status'] == "In Progress") echo "<td class='badge bg-navy'>".__("In Progress")."</td>"; ?>
+															<?php if($status['status'] == "Complete") echo "<td class='badge bg-blue'>".__("Complete")."</td>"; ?>
+															<?php if($status['status'] == "Cancelled") echo "<td class='badge bg-red'>".__("Cancelled")."</td>"; ?>
+															</td>
+
+															<td>
+																<div class="text-right">
+																	<?php if($isAdmin || $liu['clientid']==0){
+																			if(in_array("editTenderItems",$perms) || true) { ?>
+																	<a data-toggle='tooltip' title='<?php _e('Detail Status'); ?>'
+																		class="btn btn-default btn-sm " href="#"
+																		onClick='showM("?modal=tender/detailStatus&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $statustender['id']; ?>&section=");return false'><i
+																			class='fa fa-info-circle'></i></a>
+																	<?php }
+																		}?>
+																</div>
+															</td>
+														</tr>
+														
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
+											<?php if(empty($tenderr)) echo __("There are no Status Tender to display."); ?>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /.tab-pane -->
+						<div class="tab-pane <?php if ($section == "vendor") echo 'active'; ?>" id="tab-vendor">
+
+							<section class="content-header">
+								<h1 class="pull-left">
+									<?php _e('Vendor'); ?><small>
+										<?php _e('Manage Vendor'); ?></small></h1>
+								<div class="pull-right box-tools">
+									<!-- <?php if($isAdmin){
+										if(in_array("addVendorTender",$perms) || true) { ?><a
+										data-toggle='tooltip' title='<?php _e('New Vendor Person'); ?>'
+										class="btn btn-primary btn-sm " href="#"
+										onClick='showM("?modal=tender/addtender&reroute=tender/tender/manage&routeid=<?php echo $_GET['id']; ?>&id_tender=<?php echo $tenderr['id']; ?>&section=");return false'><?php _e('Add Vendor'); ?></a><?php } }?> -->
+
+									<?php if($isAdmin){
+											if(in_array("editVendor",$perms) || true) { ?>
+									<a href='?route=tender/tender/addvendor&id=<?php echo $tenderr['id']; ?>'
+										class="btn btn-primary btn-sm"><i class="fa fa-plus"></i><?php _e(' ADD VENDOR'); ?></a>&nbsp;
+									<!-- <?php }
+												if(in_array("Tender",$perms) or true) { ?>
+													<div class="pull-right"><a onClick='showM("?modal=tender/sendwa1&reroute=tender/tender/manage");return false'
+														data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-whatsapp"></i>
+														<?php _e('Send Tender'); ?></a></div>	 -->
+									<?php }
+												if(in_array("Tender",$perms) or true) { ?>
+									<div class="pull-right"><a
+											onClick='showM("?modal=tender/sendemail1&reroute=tender/tender/manage");return false'
+											data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-envelope"></i>
+											<?php _e('Send Tender'); ?></a></div>
+									<?php }
+												} ?>
+								</div>
+								<div style="clear:both">
+								</div>
+							</section>
+							<section class="content">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="box box-primary">
+											<div class="box-body">
+												<div class="table-responsive">
+													<table id="dataTablesFull" class="table table-striped table-hover">
+														<thead>
+															<tr>
+																<th><?php _e('Name'); ?></th>
+																<th><?php _e('Email'); ?></th>
+																<th><?php _e('Contact'); ?></th>
+																<th class="text-right"></th>
+
+															</tr>
+														</thead>
+														<tbody>
+															<?php foreach ($tendervendorr as $tendervendor ) { ?>
+															<tr>
+																<td>
+																	<span>
+
+																		<?php if($tendervendor['id']==0){?><span
+																			class='text-muted'><?php echo __("Undefined")?></span>
+																		<?php } else { echo getSingleValue("vendor","name",$tendervendor['id_vendor']); }?></span>
+
+																</td>
+																<td>
+																	<?php echo $tendervendor['email'];?>
+																</td>
+																<td>
+																	<?php echo $tendervendor['contact'];?>
+																</td>
+																<td>
+																	<div class="text-right">
+																		<?php if($isAdmin){
+																											if(in_array("SendWa",$perms) || true) { ?>
+																		<a data-toggle='tooltip' title='<?php _e('Send Tender By WA'); ?>'
+																			class="btn btn-success btn-sm " href="#"
+																			onClick='showM("?modal=tender/sendwa&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																				class='fa fa-whatsapp'></i></a>&nbsp;
+																		<?php }
+																											if(in_array("SendEmail",$perms) || true) {?>
+																		<a data-toggle='tooltip' title='<?php _e('Send Tender By Email'); ?>'
+																			class="btn btn-primary btn-sm " href="#"
+																			onClick='showM("?modal=tender/sendemail&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																				class='fa fa-envelope'></i></a>
+																		<?php }
+																										if(in_array("deleteTenderVendor",$perms) || true) {?>
+																		<a data-toggle='tooltip' title='<?php _e('Delete Vendor Tender'); ?>'
+																			class="btn btn-danger btn-sm " href="#"
+																			onClick='showM("?modal=tender/deletevendor&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																				class='fa fa-trash-o'></i></a>
+																		<?php }
+																									}?>
+																	</div>
+																</td>
+															</tr>
+
+															<?php } ?>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section><!-- /.content -->
+						</div>
+
+						<!--Tab Penawaran-->
+						<div class="tab-pane <?php if ($section == "penawaran") echo 'active'; ?>" id="tab-penawaran">
+
+							<section class="content-header">
+								<h1 class="pull-left">
+									<?php _e('Offer'); ?><small>
+										<?php _e('Manage Offer'); ?></small></h1>
+								<div class="pull-right box-tools">
+									<?php if($isAdmin || $liu['clientid']==0){
+											if(in_array("Tender",$perms) or true) { ?>
+									<a href='?route=tender/tender/addpenawaran&id=<?php echo $tenderr['id']; ?>'
+										class="btn btn-primary btn-sm"><i class="fa fa-plus"></i><?php _e(' ADD OFFER'); ?></a>&nbsp;
+									<?php 
+													}
+													}?>
+
+								</div>
+								<div style="clear:both">
+								</div>
+							</section>
+							<section class="content">
+								<div class="row">
+							<div class="col-md-12">
+									<div class="box-body">
+										<div class="row">
+									<div class="form_container">
+										<?php foreach ($penawaran as $tenderpenawaran) { ?>
+										<div class="col-md-6">
+											<div class="box box-primary">
+												<div class="box-header">
+													<h3 class="box-title"><?php if($tenderpenawaran['id']==0){?><span class='text-muted'><?php echo __("Undefined")?></span>
+														<?php } else { echo getSingleValue("vendor","name",$tenderpenawaran['id_tendervendor']); }?></span>
+											</h3>
+												</div>
+												<div class="box-body">
+													<div class="table-responsive">
+														<table id="dataTablesFull" class="table table-striped table-hover">
+															<thead>
+																<tr>
+																	<th></th>
+																	<th><?php _e('No'); ?></th>
+																	<th><?php _e('Offer Code'); ?></th>
+																	<th><?php _e('Price (Rp)'); ?></th>
+																	<th><?php _e('Date'); ?></th>
+																	<th class="text-right"></th>
+	
+																</tr>
+															</thead>
+															<?php
+																				$subkategoris = $database->query("select * FROM tenderpenawaran where id_tendervendor=".$tenderpenawaran['id_tendervendor']." order by id asc")->fetchAll();
+																				foreach ($subkategoris as $tenderpenawaran) { ?>
+															
+															<tbody>
+																<tr>
+																	<!-- <td>
+																		<center>
+																			<span class='label'
+																				style="background-color:#FFF;color:#000000;border:1px solid #000000">
+																				<?php echo __("Ten")?>
+																			</span>
+																		</center>
+																	</td>
+																	<td>
+																		<center>
+																			<form role="form" method="get" action="" target="_blank">
+																				<input type="hidden" name="id"
+																					value="<?php echo $item['id']; ?>">
+																				<input type="hidden" name="report" value="ppd">
+																				<input type="hidden" name="route" value="reports/view">
+																				<button type="submit" class="btn btn-primary btn-xs">
+																					<?php echo add_nol($tenderpenawaran['id'],5);?>
+																				</button>
+																			</form>
+																		</center>
+																	</td>
+																	<td>
+																		<?php echo $tenderpenawaran['kode_penawaran_vendor'];?>
+																	</td>
+																	<td>
+																		<?php echo __("Rp.")?>
+																		<?php echo number_format($tenderpenawaran['harga']);?>
+																	</td>
+																	<td>
+																		<?php echo date('d F Y', strtotime($tenderpenawaran['tgl'])); ?>
+																	</td>
+																	<td>
+
+																	</td> -->
+
+
+
+																	
+																	<td>
+																		<center>
+																			<span class='label'
+																				style="background-color:#FFF;color:#000000;border:1px solid #000000">
+																				<?php echo __("Ten")?>
+																			</span>
+																		</center>
+																	</td>
+																	<td>
+																		<center>
+																			<form role="form" method="get" action="" target="_blank">
+																				<input type="hidden" name="id"
+																					value="<?php echo $tenderpenawaran['id']; ?>">
+																				<input type="hidden" name="report" value="offer">
+																				<input type="hidden" name="route" value="reports/view">
+																				<button type="submit" class="btn btn-primary btn-xs">
+																					<?php echo $tenderpenawaran['id'];?>
+																				</button>
+																			</form>
+																		</center>
+																	</td>
+																	<td>
+																		<?php echo $tenderpenawaran['kode_penawaran_vendor'];?>
+																	</td>
+																	<td>
+																		<?php echo __("Rp.")?>
+																		<?php echo number_format($tenderpenawaran['harga']);?>
+																	</td>
+																	<td>
+																		<?php echo date('d F Y', strtotime($tenderpenawaran['tgl'])); ?>
+																	</td>
+																	<td>
+
+																	</td>
+														
+																</tr>
+	
+																
+															</tbody>
+															<?php }?>
+														</table>
+													</div>
+												</div>
+
+											</div>
+										</div>
+										<?php } ?>
+									</div>
+								</div>
+							</div>
+							</div>
+								</div>
+							</section><!-- /.content -->
+						</div>
+						<!--Tab Penawaran-->
+
+						<!--Tab Evaluation Result-->
+						<div class="tab-pane <?php if ($section == "evalutionresult") echo 'active'; ?>" id="tab-evalutionresult">
+
+							<section class="content-header">
+								<h1 class="pull-left">
+									<?php _e('Evaluation Result'); ?></h1>
+								<div class="pull-right box-tools">
+									<div class="pull-right"><?php if($isAdmin){
+										if(in_array("editTender",$perms) || true) { ?><a
+											onClick='showM("?modal=tender/sendemail1&reroute=tender/tender/manage");return false'
+											data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-envelope"></i>
+											<?php _e('Send By Email'); ?></a><?php 
+										}
+										}?></div>
+								</div>
+								<div style="clear:both">
+								</div>
+							</section>
+							<section class="content">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="box box-primary">
+											<div class="box-body">
+												<div class="table-responsive">
+													<table id="dataTablesFull" class="table table-striped table-hover">
+														<thead>
+															<tr>
+																<th><?php _e('Vendor Name'); ?></th>
+																<td>
+																	<div class='badge bg-blue'><?php _e('H'); ?></div>
+																</td>
+																<td>
+																	<div class='badge bg-blue'><?php _e('A'); ?></div>
+																</td>
+																<td>
+																	<div class='badge bg-blue'><?php _e('T'); ?></div>
+																</td>
+																<td>
+																	<div class='badge bg-yellow'><?php _e('P'); ?></div>
+																</td>
+																<td>
+																	<div class='badge bg-green'><?php _e('PK'); ?></div>
+																</td>
+																<th><?php _e('Information'); ?></th>
+																<th class="text-right"></th>
+
+															</tr>
+														</thead>
+														<tbody>
+															<?php foreach ($items as $item) { ?>
+															<tr>
+																<td>
+																	<?php echo $item['nameitems'];?>
+																</td>
+																<td>
+																	&#10004;
+																</td>
+																<td>
+																	&#10004;
+																</td>
+																<td>
+																	&#10004;
+																</td>
+
+																<td>
+																	&#11088;
+																</td>
+																
+																<td>
+																	&#11088;
+																</td>
+																
+																<td>
+																	<?php echo $item['nameitems'];?>
+																</td>
+																<td>
+																	<div class="text-right">
+																		<?php if($isAdmin){
+																											if(in_array("SendWa",$perms) || true) { ?>
+																		<!-- <a data-toggle='tooltip' title='<?php _e('Send Tender By WA'); ?>'
+																											class="btn btn-success btn-sm " href="#"
+																											onClick='showM("?modal=tender/sendwa&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																												class='fa fa-whatsapp'></i></a>&nbsp; -->
+																		<!-- <?php }
+																											if(in_array("SendEmail",$perms) || true) {?>
+																										<a data-toggle='tooltip' title='<?php _e('Send Tender By Email'); ?>'
+																											class="btn btn-primary btn-sm " href="#"
+																										onClick='showM("?modal=tender/sendemail&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																												class='fa fa-envelope'></i></a> -->
+																		<?php }
+																										if(in_array("deleteTenderVendor",$perms) || true) {?>
+																		<a data-toggle='tooltip' title='<?php _e('Delete Vendor Tender'); ?>'
+																			class="btn btn-danger btn-sm " href="#"
+																			onClick='showM("?modal=tender/deletepenawaran&reroute=tender/tender/manage&routeid=<?php echo $tenderr['id']; ?>&id=<?php echo $tendervendor['id']; ?>&section=");return false'><i
+																				class='fa fa-trash-o'></i></a>
+																		<?php }
+																									}?>
+																	</div>
+																</td>
+															</tr>
+
+															<?php } ?>
+														</tbody>
+													</table>
+													<tbody>
+														<tr>
+															<td>
+															</td>
+															<td>
+																<div class='badge bg-blue'><?php _e('H'); ?></div>
+															</td>
+															<td>
+																Price/Cost Evaluation
+															</td>
+															<td>
+															</td>
+															<td>
+																<div class='badge bg-blue'><?php _e('A'); ?></div>
+															</td>
+															<td>
+																Administration Evaluation
+															</td>
+															<td>
+															</td>
+															<td>
+																<div class='badge bg-blue'><?php _e('T'); ?></div>
+															</td>
+															<td>
+																Technical Evaluation
+															</td>
+															<td>
+															</td>
+															<td>
+																<div class='badge bg-yellow'><?php _e('P'); ?></div>
+															</td>
+															<td>
+																Winner
+															</td>
+															<td>
+															</td>
+															<td>
+																<div class='badge bg-green'><?php _e('PK'); ?></div>
+															</td>
+															<td>
+																Contract Winner
+															</td>
+														</tr>
+													</tbody>
+														
+													
+											</div>
+										</div>
+									</div>
+								</div>
+							</section><!-- /.content -->
+						</div>
+						<!--Tab Evaluation Result-->
+						<!--Tab Settings-->
+						<div class="tab-pane <?php if ($section == "setting") echo 'active'; ?>" id="tab-setting">
+
+							<section class="content-header">
+								<h1 class="pull-left">
+									<?php _e('Settings'); ?></h1>
+								<div style="clear:both">
+								</div>
+							</section>
+							<!--baru-->
+							<section class="content">
+							
+													<div class="row">
+														<div class="col-xs-12">
+																<div class="box-body">
+																	<form role="form" method="post" class="form-horizontal"
+																		style="padding:15px;" name="roleForm">
+																		<div class="row">
+																			
+																		<div class="row">
+																			<div class="col-md-12">
+																				<div class="box box-success">
+																					<div class="box-header with-border">
+																						<h3 class="box-title"><?php _e('Item Tender'); ?></h3>
+																						<div class="box-tools pull-right"><button type="button" class="btn btn-default btn-sm"
+																							data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+																								class="fa fa-minus"></i></button></div>
+																					</div>
+																					<div class="box-body">
+																						<div class="row">
+																							<div class="col-md-12">
+																								<?php foreach ($items as $item) { ?>
+																								<label for="beamp"><?php echo $item['nameitems'];?> <?php echo $item['qty'];?>
+																									<?php if($item['id']==0){?>
+																									<?php } else { echo getSingleValue("size","name",$item['id_sizecat']); }?>
+																								</label>
+									
+																								<div class="input-group">
+																									<span class="input-group-addon">Rp. </span>
+																									<input oninput="myFunctionBeam(event)" type="number" step="0.01" class="form-control"
+																										value="<?php echo $calgrdtset['beamp'];?>" id="beamp" name="beamp" placeholder="0"
+																										required autocomplete="off">
+																								</div>
+																								<br>
+									
+																								<?php } ?>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																	
+																		<div class="row">
+																			<div class="col-md-12">
+																				<div class="box box-warning">
+																					<div class="box-header with-border">
+																						<h3 class="box-title"><?php _e('Criteria'); ?> <?php echo getSingleValue("pengadaan","name",$tenderr['id_pengadaan']); ?></h3>
+																						<div class="box-tools pull-right"><button type="button" class="btn btn-default btn-sm"
+																							data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+																								class="fa fa-minus"></i></button></div>
+																					</div>
+																					<div class="box-body">
+																						<div class="row">
+																							<div class="col-md-12">
+																								<?php foreach ($acuan as $item) { ?>
+																									<label for="beamp"><?php echo $item['name'];?> 
+																										
+																									</label>
+																									<?php if($isAdmin || in_array("EditCaluclation",$perms)): ?>
+																										<a data-toggle='tooltip' title='<?php _e('Edit Acuan Pengadaan'); ?>'
+																											class="btn btn-default btn-sm " href="#"
+																											onClick='showM("?modal=PengadaanAcuan/edit&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																												class='fa fa-edit'></i></a>&nbsp;
+																										<?php endif; ?>
+																										<?php if($isAdmin || in_array("DeleteCaluclation",$perms)): ?>
+																										<a data-toggle='tooltip' title='<?php _e('Delete Acuan Pengadaan'); ?>'
+																											class="btn btn-danger btn-sm " href="#"
+																									onClick='showM("?modal=PengadaanAcuan/delete&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
+																												class='fa fa-trash-o'></i></a>
+																								<?php endif; ?>
+																									<div class="input-group">
+																										
+																										<span class="input-group-addon">4 </span>
+																										<input oninput="myFunctionBeam(event)" type="text"  class="form-control"
+																											value="" id="beamp" name="beamp" 
+																											required autocomplete="off" >
+																											<span class="input-group-addon">3 </span> <br>
+																										<input oninput="myFunctionBeam(event)" type="text" class="form-control"
+																											value="" id="beamp" name="beamp" 
+																											required autocomplete="off">
+																											<span class="input-group-addon">2 </span>
+																										<input oninput="myFunctionBeam(event)" type="text" class="form-control"
+																											value="" id="beamp" name="beamp"
+																											required autocomplete="off">
+																											<span class="input-group-addon">1 </span>
+																										<input oninput="myFunctionBeam(event)" type="text" class="form-control"
+																											value="" id="beamp" name="beamp" 
+																											required autocomplete="off">
+																									</div>
+											
+																									<?php } ?>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+
+																	</div>
+																		<input type="hidden" name="routeid" value="<?= $_GET['id'];?>">
+																		<input type="hidden" name="action"
+																			value="calculationGuardrailReffDetail">
+																		<input type="hidden" name="route" value="calculation/guardrail/manage">
+						
+																		<button type="submit" class="btn btn-success pull-right"><i
+																				class="fa fa-save"></i>
+																			<?php _e('Save'); ?></button>
+																	</form>
+																</div>
+														</div>
+													</div>
+							</section><!-- /.content -->
+						</div>
+
+						<!--Tab Settings-->
+					</div>
+
+					<!-- /.tab-services -->
+				</div>
+				<!-- /.tab-content -->
+			</div>
+			<!-- nav-tabs-custom -->
+		</div>
+		<!-- /.col -->
+		</div>
+	</section><!-- /.content -->
+</aside><!-- /.right-side -->
+
+<script type="text/javascript" language="javascript">
+	// <![CDATA[
+	function checkAll(formname, checktoggle) {
+		var checkboxes = new Array();
+		checkboxes = document[formname].getElementsByTagName('input');
+		for (var i = 0; i < checkboxes.length; i++) {
+			if (checkboxes[i].type == 'checkbox') {
+				checkboxes[i].checked = checktoggle;
+			}
+		}
+	}
+</script>

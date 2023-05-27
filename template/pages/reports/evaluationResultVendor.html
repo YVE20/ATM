@@ -1,0 +1,88 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+
+	<!-- Main content -->
+	<?php  
+		$dataTender = $database->query("SELECT *FROM tender WHERE id='".$_GET['routeid']."'")->fetchAll();
+	?>
+	<section class="content">
+		<section class="invoice">
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"> <b> PT. Sarana Bangun Pusaka </b> </h2>
+				</div>
+				<div class="col-xs-12">
+					<center> <font class="h4"> <b> <u> PENAWARAN HARGA TENDER </u> </b> </font> <small> <?= "#".$dataTender[0]['kode'] ?> </small> </center>
+				</div>
+				<div class="col-xs-12">
+					<p> Nomor :  BPP-/<?= date('m')."/".date('Y') ?></p>
+					<p> Tanggal : <?= date('d/m/Y') ?> </p>
+				</div>
+				<div class="col-xs-12" style="margin-top: 30px;">
+					<p> Dengan hormat, </p>
+					<font> Bersama ini kami informasikan penawaran harga <?= $dataTender[0]['name'] ?>. Rincian penawaran pengiriman sebagai berikut :  </font>
+					<table class="table table-striped" style="margin-top: 15px;">
+						<thead>
+							<tr>
+								<th> Item Tender </th>
+								<th> Harga </th>
+								<?php  
+									$dataPengadaan = $database->query("SELECT *FROM pengadaanacuan WHERE pengadaanid='".$dataTender[0]['id_pengadaan']."'")->fetchAll();
+
+									foreach($dataPengadaan as $dP){
+										echo "<th> ".$dP['name']." </th>";
+									}
+								?>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+								$tenderItems = $database->query("SELECT *FROM tenderitems ti INNER JOIN tenderpenawaran tp on ti.id = tp.id_itemtender WHERE ti.id_tender='".$dataTender[0]['id']."' and tp.id_tendervendor ='".$_GET['idvendor']."' ORDER BY tp.harga ASC LIMIT 1")->fetchAll();
+
+								foreach($tenderItems as $tI){
+							?>
+								<tr>
+									<td> <?= $tI['nameitems'] ?> </td>
+									<td> Rp. <?= number_format($tI['harga'],0,',','.') ?> </td>
+									<?php 
+										$split = explode('_',substr($tI['kriteria'],0,-1));
+										foreach($split as $dataPengadaanAcuanDetail){
+											//Check data
+											$data = explode('|',$dataPengadaanAcuanDetail);
+											$pengadaan = $database->query("SELECT *FROM pengadaanacuandetail WHERE id_pengadaanacuandetail='".$data[1]."'")->fetchAll();
+
+											if($pengadaan){
+												echo "<td> ".$pengadaan[0]['detailpengadaan']." </td>";
+											}else{
+												echo "<td> - </td>";
+											}
+										}
+									?>
+								</tr>
+							<?php
+								}
+							?>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-xs-12" style="margin-top: 30px;">
+					<p> Dengan Kondisi </p>
+					<ol>
+						<li> Harga Include pajak dan asuransi </li>
+						<li> Harga sewaktu-waktu dapat berubah </li>
+						<li> Pelunasan pembayaran setelah surat Jalan kembali cash </li>
+					</ol>
+				</div>
+				<div class="col-xs-12">
+					<div class="col-xs-4" style="float: right;">
+						<center>
+							<p> Hormat Kami,  </p><br><br>
+							<font> <?= $_GET['name'] ?> </font>
+						</center>
+					</div>
+				</div>
+			</div>
+			<hr>
+		</section>
+	</section>"
+</aside>

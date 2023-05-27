@@ -5,7 +5,6 @@
 ##################################
 
 // GENERAL
-
 // JOB
 if ($route == "master-data/vendor/job") {
     //isAuthorized("manageData");
@@ -134,9 +133,24 @@ if ($route == "master-data/size-data/size") {
 //TENDER
 if ($route == "tender/tender") {
     //isAuthorized("manageData");
-    $tenderr = $database->query("select * FROM tender where status =  'Open' UNION select * FROM tender where status =  'In Progress' ")->fetchAll();
-    $complete =  $database->query("select * FROM tender where status = 'Complete'")->fetchAll();
-    $cancelled =  $database->query("select * FROM tender where status = 'Cancelled'")->fetchAll();
+    //$tenderr = $database->query("select * FROM tender where status =  'Open' UNION select * FROM tender where status =  'In Progress' ")->fetchAll();
+
+    //Get People  By Email
+    $people = $database->query("SELECT id,name,type,title FROM people WHERE email='".$_SESSION['email']."'")->fetchAll();
+    
+    if($people[0]['type'] == "admin" && $people[0]['title'] == "SUPERADMIN")
+    {
+        $tenderr = $database->query("SELECT *FROM tender WHERE (status = 'Open' OR status = 'In Progress')")->fetchAll();
+        $complete =  $database->query("SELECT * FROM tender where status = 'Complete'")->fetchAll();
+        $cancelled =  $database->query("SELECT * FROM tender where status = 'Cancelled'")->fetchAll();
+    }
+    else if($people[0]['type'] != "admin" )
+    {
+        $tenderr = $database->query("SELECT *FROM tender t INNER JOIN people p on t.id_people = p.id  WHERE (t.status = 'Open' OR t.status = 'In Progress')")->fetchAll();
+
+        $complete =  $database->query("SELECT * FROM tender t INNER JOIN  people p on t.id_people = p.id WHERE t.status = 'Complete'");
+        $cancelled =  $database->query("SELECT * FROM tender t INNER JOIN  people p on t.id_people = p.id  WHERE t.status = 'Cancelled'")->fetchAll();
+    }
     $kategori = $database->select("kategori", "*", ["ORDER" => "id ASC"]);
     $subkategoris = $database->select("subkategori", "*", ["ORDER" => "id ASC"]);
     $pg = getTable("pengadaan");
@@ -147,10 +161,14 @@ if ($route == "tender/tender") {
 if ($route == "tender/tender/manage") {
     //isAuthorized("manageAsset");
     $tenderr = getRowById("tender", addslashes(trim($_GET['id'])));
+
     $systemLog = getTable("systemlog");
     $vendorr = $database->select("vendor", "*", ["ORDER" => "id ASC"]);
     $tendervendorr = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
-    $penawaran = $database->query("select * FROM tenderpenawaran where id_tender=" . $_GET['id'] . " order by id_tendervendor desc")->fetchAll();
+
+    $penawaran = $database->query("select * FROM tenderpenawaran where id_tender=" . $_GET['id'] . " group by id_tendervendor order by id_tendervendor desc")->fetchAll();
+
+
     $sendtender = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id_tender desc")->fetchAll();
     $statustender =$database->query("select * FROM tenderstatus where id_tender=" . $_GET['id'] . " order by id asc")->fetchAll();
 
@@ -161,10 +179,21 @@ if ($route == "tender/tender/manage") {
     $kategori = $database->select("kategori", "*", ["ORDER" => "id ASC"]);
     $subkategoris = $database->select("subkategori", "*", ["ORDER" => "id ASC"]);
 
-    $items = $database->query("Select * from tender t inner join tenderitems ti on t.id = ti.id_tender inner join 
-    tenderpenawaran tp on tp.id_itemtender = ti.id inner join tendervendor tv on tv.id_vendor = tp.id_tendervendor
-    inner join tenderstatus ts on t.id = ts.id_tender where ts.status = 'Open' and ti.id_tender = ".$_GET['id']." ORDER BY harga DESC limit 3;")->fetchAll();
-    $acuan = $database->query("select * FROM pengadaanacuan where pengadaanid=" . $_GET['id'] . " order by id, pengadaanid desc")->fetchAll();
+    // $items = $database->query("Select * from tender t inner join tenderitems ti on t.id = ti.id_tender inner join 
+    // tenderpenawaran tp on tp.id_itemtender = ti.id inner join tendervendor tv on tv.id_vendor = tp.id_tendervendor
+    // inner join tenderstatus ts on t.id = ts.id_tender where ts.status = 'Open' and ti.id_tender = ".$_GET['id']." ORDER BY harga DESC limit 3;")->fetchAll();
+
+    $items = $database->query("SELECT DISTINCT(tv.id_vendor), tv.name, tp.tgl, tp.harga, tp.info, ti.nameitems, ti.qty, ti.id AS 'id_ti', ti.id_sizecat FROM tendervendor tv 
+    INNER JOIN tenderpenawaran tp ON tv.id_vendor = tp.id_tendervendor 
+    INNER JOIN tenderitems ti ON ti.id_tender = tp.id_tender
+    WHERE tv.id_tender='".$_GET['id']."' GROUP BY tv.id_vendor  ORDER BY tp.harga ASC LIMIT 3")->fetchAll();
+    
+
+    $tenderItems = $database->query("SELECT *FROM tenderitems WHERE id_tender ='".$_GET['id']."'")->fetchAll();
+
+    //Get Pengadaan from Tender
+    $pengadaan = $database->query("SELECT *FROM tender WHERE id ='".$_GET['id']."'")->fetchAll();
+    $acuan = $database->query("select * FROM pengadaanacuan where pengadaanid=" . $pengadaan[0]['id_pengadaan'] . " order by id, pengadaanid desc")->fetchAll();
     $pg = getTable("pengadaan");
     $dp = getTable("department");
     $sc = getTable("sizecat"); 
@@ -207,7 +236,9 @@ if ($route == "tender/tender/edit") {
 }
 if ($route == "tender/tender/addvendor") {
     //isAuthorized("manageData");
+    
     $addvendorr = $database->select("vendor", "*", ["ORDER" => "name ASC"]);
+
     $tenderr = getRowById("tender", addslashes(trim($_GET['id'])));
     $pageTitle = __("Add Vendor");
 }
@@ -220,14 +251,33 @@ if ($route == "tender/tender/addpenawaran") {
     $tenderr = getRowById("tender", addslashes(trim($_GET['id'])));
     $vendorpenawar = $database->select("vendor", "*", ["ORDER" => "id ASC"]);
     $tendervendorr = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
+
     $items = $database->query("select * FROM tenderitems where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
-    
+
     //$pengadaans = $database->query("select * FROM tender where id_pengadaan=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
     foreach ($vendorpenawar as $tendervendor ) {
         
     }
     $sc = getTable("size");
     $pageTitle = __("Add Tender");
+}
+if($route == "tender/tender/editpenawaran"){
+    //isAuthorized("manageData");
+    $pengadaan = $database->select("pengadaan", "*", ["ORDER" => "id ASC"]);
+    $pengadaanacuan = $database->select("pengadaanacuan", "*", ["ORDER" => "id ASC"]);
+
+    $tenderr = getRowById("tender", addslashes(trim($_GET['id'])));
+    $vendorpenawar = $database->select("vendor", "*", ["ORDER" => "id ASC"]);
+    $tendervendorr = $database->query("select * FROM tendervendor where id_vendor=" . $_GET['idtendervendor'] . " order by id, id_tender desc")->fetchAll();
+
+    $items = $database->query("select * FROM tenderitems where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
+
+    //$pengadaans = $database->query("select * FROM tender where id_pengadaan=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
+    foreach ($vendorpenawar as $tendervendor ) {
+        
+    }
+    $sc = getTable("size");
+    $pageTitle = __("Edit Penawaran Tender");
 }
 //Penawaran
 if ($route == "tender/tender/addpenawaran1") {
@@ -240,7 +290,6 @@ if ($route == "tender/tender/addpenawaran1") {
         $tenderr = getRowById("tender", addslashes(trim($_GET['id'])));
     $pageTitle = __("Add Tender");
 }
-
 
 if ($route == "reports/view") {
     if ($_GET['report'] == "offer") {

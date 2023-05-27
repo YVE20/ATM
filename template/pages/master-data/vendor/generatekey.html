@@ -14,21 +14,20 @@
 			$url = $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . "/atm/?route=signin&key=" . $hex;
 			
 			?>
-			<?php foreach ($genkeyactive as $generatekey): ?>
-			<div class="pull-right">
-				<input type="hidden" name="action" value="addVendorgeneratekey">
-				<input type="hidden" name="key" value="<?php echo $hex ?>">
-				<input type="hidden" name="link" value="<?php echo $url ?>">
-				<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
-				<?php if(isset($_GET['section'])){?>
-				<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
-				<?php }?>
-				<?php if(isset($_GET['routeid'])){?>
-				<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
-				<?php }?>
-				<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i><?php _e('NEW KEY'); ?></button>
+			<?php foreach ($genkeyactive as $generatekey){ ?>
+				<div class="pull-right">
+					<input type="hidden" name="action" value="addVendorgeneratekey">
+					<input type="hidden" name="key" value="<?php echo $hex ?>">
+					<input type="hidden" name="link" value="<?php echo $url ?>">
+					<input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+					<?php if(isset($_GET['section'])){?>
+					<input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+					<?php }?>
+					<?php if(isset($_GET['routeid'])){?>
+					<input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+					<?php }?>
 				</div>
-<?php endforeach; ?>
+			<?php } ?>
 </form>
 		<h1 class="pull-left"><?php _e('Generate Key'); ?> <small> <?php _e('Manage Generate Key'); ?></small>
 		</h1>
@@ -78,11 +77,16 @@
 									</thead>
 									<tbody>
 										<?php foreach ($genkeynonacctive as $generatekey): ?>
+										<?php $generatedKey = $generatekey['link']; ?>
 										<tr>
 											<td><center><?php echo $generatekey['id'] ?></center></td>
 											<td><center><?php echo $generatekey['key']?></center></td>
-											<td><input class="form-control" autocomplete="off" id="myInput" value="<?php echo $generatekey['link'] ?>" readonly></td>
-											<td><button type="button" class="btn btn-primary btn-posi" onclick="myFunction()"><i style="font-size:10px" class="fa">&#xf0c5;</i></button></td>
+											<td><input class="form-control" value="<?php echo $generatedKey ?>" readonly></td>
+											<td>
+												<button class="btn btn-primary"  onclick="copyActive('<?= $generatedKey ?>')">
+													<i style="font-size:10px" class="fa">&#xf0c5;</i>
+												</button>
+											</td>
 											<td><center>
 															<?php 					
 															if($generatekey['status']==0 ){ ?>
@@ -123,11 +127,16 @@
 									</thead>
 									<tbody>
 										<?php foreach ($genkeyactive as $generatekey): ?>
+										<?php $unGeneratedKey = $generatekey['link']; ?>
 										<tr>
 											<td><center><?php echo $generatekey['id'] ?></center></td>
 											<td><center><?php echo $generatekey['key']?></center></td>
-											<td><input class="form-control" autocomplete="off" id="myInput" value="<?php echo $generatekey['link'] ?>" readonly></td>
-											<td><button type="button" class="btn btn-primary btn-posi" onclick="myFunction()"><i style="font-size:10px" class="fa">&#xf0c5;</i></button></td>
+											<td><input class="form-control" readonly  id="myInputNonActive" value="<?php echo $unGeneratedKey ?>"></td>
+											<td>
+												<button type="button" class="btn btn-primary btn-posi" onclick="copyNonActive('<?= $unGeneratedKey ?>')">
+													<i style="font-size:10px" class="fa">&#xf0c5;</i>
+												</button>
+											</td>
 											<td><center>
 															<?php 					
 															if($generatekey['status']==0 ){ ?>

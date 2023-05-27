@@ -1,0 +1,102 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><?php _e('Edit Instruction'); ?>
+    </h4>
+</div>
+    <div class="modal-body">
+        <?php  
+            $dataTender = $database->query("SELECT *FROM tender WHERE id='".$_GET['routeid']."'")->fetchAll();
+
+            $tenderItems = $database->query("SELECT *FROM tenderitems ti INNER JOIN tenderpenawaran tp ON ti.id = tp.id_itemtender 
+            INNER JOIN tender t ON t.id = ti.id_tender WHERE ti.id_tender='".$dataTender[0]['id']."' and tp.id_tendervendor ='".$_GET['idvendor']."' ORDER BY tp.harga ASC LIMIT 1")->fetchAll();
+
+            $alamatLengkap = explode("_",$tenderItems[0]['alamat_kirim']);
+            $alamatSuffing = explode("_",$tenderItems[0]['alamat_gudang']);
+        ?>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="namaPengirim"> <b> Nama Pengirim * </b> </label>
+                    <input type="text" name="namaPengirim" id="namaPengirim" class="form-control" value="PT. SARANA BANGUN PUSAKA" readonly>
+                </div>
+                <div class="col-lg-7">
+                    <label for="alamatPengirim"> <b> Alamat *</b> </label>
+                    <input type="text" name="alamatPengirim" id="alamatPengirim" class="form-control" value="Jl. Raya Kudus - Pati Km 12 Kudus 59382, Indonesia" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="namaTujuan"> <b> Nama Tujuan * </b> </label>
+                    <input type="text" name="namaTujuan" id="namaTujuan" class="form-control" value="<?= $alamatLengkap[0] ?>">
+                </div>
+                <div class="col-lg-7">
+                    <label for="alamatTujuan"> <b> Alamat *</b> </label>
+                    <input type="text" name="alamatTujuan" id="alamatTujuan" class="form-control" value="<?= $alamatLengkap[1] ?>">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="itemTender"> <b> Item Tender </b> </label>
+                    <input type="text" name="itemTender" id="itemTender" readonly class="form-control" value="<?= $tenderItems[0]['nameitems'] ?>">
+                </div>
+                <div class="col-lg-7">
+                    <label for="harga"> <b> Harga </b> </label>
+                    <input type="text" name="harga" id="harga"  readonly class="form-control" value="<?= number_format($tenderItems[0]['harga'],0,',','.') ?>">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="payment"> <b> Payment </b> </label>
+                    <input type="text" name="payment" id="payment" readonly class="form-control" value="Kredit">
+                </div>
+                <div class="col-lg-7">
+                    <label for="tglSuffing"> <b> Tgl Suffing </b> </label>
+                    <input type="date" name="tglSuffing" id="tglSuffing" class="form-control" value="<?= $tenderItems[0]['tgl'] ?>">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="tempatSuffing"> <b> Tempat Suffing </b> </label>
+                    <input type="text" name="tempatSuffing" id="tempatSuffing" class="form-control" value="<?= $alamatSuffing[0] ?>">
+                </div>
+                <div class="col-lg-7">
+                    <label for="alamat"> <b> Alamat * </b> </label>
+                    <input type="text" name="alamat" id="alamat" class="form-control" value="<?= $alamatSuffing[1] ?>">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-lg-12">
+                    <label for="keterangan"> <b> Keterangan </b> </label> <br>
+                    <textarea name="keterangan" id="keterangan" class="form-control" cols="30" rows="10"><?= $tenderItems[0]['keterangan'] ?></textarea>
+                </div>
+            </div>
+        </div>
+        
+
+        <input type="hidden" name="action" value="editInstruction">
+        <input type="hidden" name="id_vendor" value="<?php echo $_GET['idvendor']; ?>">
+        <input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+        <input type="hidden" name="idtenderpenawaran" value="<?= $tenderItems[0][6] ?>">
+        <?php if(isset($_GET['section'])){?>
+        <input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+        <?php }?>
+        <?php if(isset($_GET['routeid'])){?>
+        <input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+        <?php }?>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+        <?php _e('Cancel'); ?></button>
+        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+    </div>
+

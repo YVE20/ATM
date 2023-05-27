@@ -194,7 +194,8 @@ class Tender extends App {
               "id_vendor" => $data['id_vendor'],
               "email" => $data['email'],
               "contact" => $data['contact'],
-              "kode" => $data['kode'] 
+              "kode" => $data['kode'],
+              "name" => $data['name']
           ]);
         }
         
@@ -378,23 +379,67 @@ foreach ($tujuan as $address) {
       logSystem("Gagal");
       return "30";
     }
+    public static function editEvaluationResult($data){
+      global $database;
+
+      $priceEvaluation = 0; $administrationEvaluation = 0; $technicalEvaluation = 0; $winnerEvaluation = 0; $contractEvaluation = 0;
+      if($data['priceEvaluation']){
+        $priceEvaluation = 1;
+      }
+      if($data['administrationEvaluation']){
+        $administrationEvaluation = 1;
+      }
+      if($data['technicalEvaluation']){
+        $technicalEvaluation = 1;
+      }
+      if($data['winnerEvaluation']){
+        $winnerEvaluation = 1;
+      }
+      if($data['contractEvaluation']){
+        $contractEvaluation = 1;
+      }
+
+      $database->update("statustenderpenawaran",[
+          "price" => $priceEvaluation,
+          "administration" => $administrationEvaluation,
+          "technical" => $technicalEvaluation,
+          "winner" => $winnerEvaluation,
+          "contract_winner" => $contractEvaluation,
+          "information" => $data['information']
+      ],[
+        'id_vendortenderpenawaran' => $data['id_vendor']
+      ]);
+
+      return "10";
+    }
     public static function addPenawaran($data)
     {
         global $database;
-      //print_r($data['id']); die();
-          $lastid = $database->insert("tenderpenawaran", [
-              "id_tender" => $data['id_tender'],
-              "id_itemtender" => $data['id_itemtender'],
-              "id_tendervendor" => $data['id_tendervendor'],
-              "kode_tender" => $data['kode_tender'],
-              "kode_penawaran_vendor" => $data['kode_penawaran_vendor'],
-              "tgl" => $data['tgl'],
-              "harga" => $data['harga'],
-              "info" => $data['info'],
-              "dokumen" => $data['dokumen'],
-              "timestamp" => date("Y-m-d H:i:s")
-              
-          ]);
+
+        //For image
+        $fileName = $_FILES["dokumen"]["name"];
+        $tempName = $_FILES["dokumen"]["tmp_name"];
+        $folder = "./upload/img/tenderPenawaran/" . $fileName;
+
+        $lastid = $database->insert("tenderpenawaran", [
+            "id_tender" => $data['id_tender'],
+            "id_itemtender" => $data['id_itemtender'],
+            "id_tendervendor" => $data['id_tendervendor'],
+            "kode_tender" => $data['kode_tender'],
+            "kode_penawaran_vendor" => $data['kode_penawaran_vendor'] != null ? $data['kode_penawaran_vendor'] : "0",
+            "tgl" => $data['tgl'],
+            "harga" => $data['harga'] != null ? $data['harga'] : "0",
+            "info" => $data['info'],
+            "dokumen" => $fileName,
+            "timestamp" => date("Y-m-d H:i:s"),
+            "kriteria" => implode("",$data['kriteria'])
+        ]);
+
+        $database->insert("statustenderpenawaran",[
+          "id_vendortenderpenawaran" => $data['id_tendervendor'],
+        ]);
+
+        if (move_uploaded_file($tempName, $folder))
         
         logSystem("Penawaran Tender Added - ID :" . $data['id']);
         //print_r($data['id']); die();
@@ -407,5 +452,128 @@ foreach ($tujuan as $address) {
         // print_r($data['id']); die();
         logSystem("Penawaran Tender Deleted");
         return "30";
+    }
+    public static function deleteOffer($data){
+      global $database;
+      
+      $database->delete("tenderpenawaran", ["id" => $data['id']]);
+      logSystem("Penawaran Tender Deleted");
+      return "30";
+    }
+    public static function deleteEvaluationResult($data){
+      global $database;
+
+      //Delete Tender Vendor
+      $database->delete("tendervendor",[
+        "id_vendor" => $data['idvendor']
+      ]);
+
+      //Delete Tender Penawaran
+      $database->delete("tenderpenawaran",[
+        "id_tendervendor" => $data['idvendor']
+      ]);
+
+      //Delete Status Tender Penawaran
+      $database->delete("statustenderpenawaran",[
+        "id_vendortenderpenawaran" => $data['idvendor']
+      ]);
+
+      logSystem("Evaluation Result Tender Deleted");
+      return "30";
+    }
+    public static function editPenawaran($data){
+      global $database;
+
+      print_r($data);
+      die();
+        
+      //For image
+      $imageFromDB = $database->query("SELECT dokumen from tenderpenawaran WHERE id='".$_GET['idtenderpenawaran']."'")->fetchAll();
+      
+      $imageChange = false;
+      $fileName = $_FILES["dokumen"]["name"] != null ? $_FILES["dokumen"]["name"] : $imageFromDB[0]['dokumen'];
+      $tempName = $_FILES["dokumen"]["tmp_name"];
+      $folder = "./upload/img/tenderPenawaran/" . $fileName;
+      
+      if($_FILES["dokumen"]["name"] != null){
+        $imageChange = true;
+      }
+      
+      if($imageChange == true){
+        move_uploaded_file($tempName, $folder);
+      }
+
+      
+      try{
+        $database->update("tenderpenawaran", 
+          [            
+            "kode_penawaran_vendor" => $data['kode_penawaran_vendor'],
+            "tgl" => $data['tgl'],
+            "harga" => $data['harga'],
+            "dokumen" => $fileName,
+            "timestamp" => date("Y-m-d H:i:s"),
+            "updated" => date('Y-m-d H:i:s')
+          ], 
+          [ 
+            "id" => $_GET['idtenderpenawaran'] 
+          ]
+        );
+
+        logSystem("Penawaran Tender Updated");
+
+        return "20";
+      }
+      catch(Exception $ex){
+        return $ex;
+      }
+    }
+    public static function editInstruction($data){
+      global $database;
+
+      //Edit Tender
+      $database->update("tender",[
+        "alamat_gudang" => $data['tempatSuffing']."_".$data['alamat'],
+        "alamat_kirim" => $data['namaTujuan']."_".$data['alamatTujuan'],
+        "keterangan" => $data['keterangan']
+      ],[
+        "id" => $data['routeid']
+      ]);
+
+      //Edit Tender Penawaran
+      $database->update("tenderpenawaran",[
+        "tgl" => $data['tglSuffing']
+      ],[
+        "id" => $data['idtenderpenawaran']
+      ]);
+
+      logSystem("Instruction Tender Updated");
+
+      return "20";
+    }
+    public static function editCriteria($data){
+      global $database;
+
+      //Edit Pengadaan Acuan
+      $database->update("pengadaanacuan",[
+        "name" => $data['namaPengadaan']
+      ],[
+        "id" => $data['idpengadaanacuan']
+      ]);
+
+      logSystem("Criteria Tender Updated");
+
+      return "20";
+    }
+    public static function deleteCriteria($data){
+      global $database;
+
+      //Delete Pengadaan Acuan
+      $database->delete("pengadaanacuan", ["id" =>  $data['idpengadaanacuan']]);
+
+      //Delete Pengadaan Acuan Detail
+      $database->delete("pengadaanacuandetail", ["id_pengadaanacuan" =>  $data['idpengadaanacuan']]);
+
+      logSystem("Criteria Tender Deleted");
+      return "30";
     }
 }

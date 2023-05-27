@@ -73,77 +73,103 @@
 																<div class="box-header with-border">
 																	<h3 class="box-title"><?php _e('Criteria'); ?></h3>
 																	<div class="box-tools pull-right">
-																		<?php if(in_array("addpengadaanacuan",$perms) || true) { ?><a
-																			data-toggle='tooltip' title='<?php _e('New Criteria'); ?>'
-																			class="btn btn-primary btn-sm " href="#"
-																			onClick='showM("?modal=pengadaanacuan/add&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $_GET['id']; ?>&pengadaanid=<?php echo $pengadaans['id']; ?>&section=");return false'><?php _e('New Criteria'); ?></a><?php } ?>
-																
-																			<button type="button" class="btn btn-default btn-sm"
-																			data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
-																				class="fa fa-minus"></i></button></div>
+																		<?php if(in_array("addpengadaanacuan",$perms) || true) { ?>
+																			<a data-toggle='tooltip' title='<?php _e('New Criteria'); ?>' class="btn btn-primary btn-sm " href="#"
+																			onClick='showM("?modal=pengadaanacuan/add&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $_GET['id']; ?>&pengadaanid=<?php echo $pengadaans['id']; ?>&section=");return false'><?php _e('New Criteria'); ?>
+																			</a>
+																		<?php } ?>
+																		<button type="button" class="btn btn-default btn-sm" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+																			<i class="fa fa-minus"></i>
+																		</button>
+																	</div>
 																</div>
 																<div class="box-body">
-																		<div class="col-md-12">
-																			<?php foreach ($acuan as $item) { ?>
-																				<label for="acuan"><?php echo $item['name'];?> 
-																				</label>
-																				<div class="pull-right">
-																	
-																					<?php if($isAdmin || in_array("EditCaluclation",$perms)): ?>
-																					<a data-toggle='tooltip' title='<?php _e('Edit Acuan Pengadaan'); ?>'
-																						class="btn btn-default btn-xs " href="#"
-																						onClick='showM("?modal=PengadaanAcuan/edit&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
-																							class='fa fa-edit'></i></a>
-																					<?php endif; ?>
-																					<?php if($isAdmin || in_array("DeleteCaluclation",$perms)): ?>
-																					<a data-toggle='tooltip' title='<?php _e('Delete Acuan Pengadaan'); ?>'
-																						class="btn btn-danger btn-xs " href="#"
-																				onClick='showM("?modal=PengadaanAcuan/delete&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'><i
-																							class='fa fa-trash-o'></i></a>
-																			<?php endif; ?>
-																			
-																		</div>
-																		<div class="box-body">
-																		<div class="row">
-
-																			<div class="col-md-3">
-																			<div class="input-group"><span class="input-group-addon">4</span>
-																				<input oninput="myFunction4(event)" type="text" class="form-control"
-																				value="" id="4" name="4" 
-																				required autocomplete="off">
+																	<div class="col-md-12">
+																		<?php foreach ($acuan as $item) { ?>
+																			<label for="acuan">
+																				<?php echo $item['name'];?> 
+																			</label>
+																			<div class="pull-right">
+																				<?php if($isAdmin || in_array("EditCaluclation",$perms)): ?>
+																				<a data-toggle='tooltip' title='<?php _e('Edit Acuan Pengadaan'); ?>'class="btn btn-default btn-xs " href="#" onClick='showM("?modal=PengadaanAcuan/edit&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'>
+																					<i class='fa fa-edit'></i>
+																				</a>
+																				<?php endif; ?>
+																				<?php if($isAdmin || in_array("DeleteCaluclation",$perms)): ?>
+																				<a data-toggle='tooltip' title='<?php _e('Delete Acuan Pengadaan'); ?>' class="btn btn-danger btn-xs " href="#" onClick='showM("?modal=PengadaanAcuan/delete&reroute=master-data/tender/tender/managepengadaan&routeid=<?php echo $pengadaans['id']; ?>&id=<?php echo $item['id']; ?>&section=");return false'>
+																					<i class='fa fa-trash-o'></i>
+																				</a>
+																				<?php endif; ?>
 																			</div>
-																	</div>
-																				<div class="col-md-3">
-																						<div class="input-group"><span class="input-group-addon">3</span>
-																							<input oninput="myFunction3(event)" type="text" class="form-control"
-																							value="" id="3" name="3" 
-																							required autocomplete="off">
+																			<div class="box-body">
+																				<div class="row">
+																					<?php  
+																						$pengadaanAcuanDetail = $database->query("SELECT *FROM pengadaanacuandetail WHERE id_pengadaanacuan = '".$item['id']."'")->fetchAll();
+																						
+																						if(count($pengadaanAcuanDetail)){
+																							$row = 4;
+																							foreach($pengadaanAcuanDetail as $PAD){
+																					?>
+																						<div class="col-md-3">
+																							<div class="input-group">
+																							<span class="input-group-addon"> 
+																								<?= $row; ?> 
+																							</span>	 
+																							<input oninput="myFunctionBeam(event)" type="text" class="form-control" style="width: 75%;" value="<?= $PAD['detailpengadaan'] ?>" id="beamp" name="beamp|<?= $item['name'].'|'.$row--; ?>" required autocomplete="off" >
+																								</div>
+																							</div>
+																						<?php
+																							}
+																						?>
+																					<?php
+																						}else{
+																					?>
+																						<div class="col-md-3">
+																							<div class="input-group">
+																								<span class="input-group-addon"> 
+																									4 
+																								</span>	 
+																								<input oninput="myFunctionBeam(event)" type="text" class="form-control" style="width: 75%;" value="" id="beamp" name="beamp|<?= $item['name'].'|'.'4' ?>" required autocomplete="off" >
+																							</div>
 																						</div>
+																						<div class="col-md-3">
+																							<div class="input-group">
+																								<span class="input-group-addon"> 
+																									3 
+																								</span>	 
+																								<input oninput="myFunctionBeam(event)" type="text" class="form-control" style="width: 75%;" value="" id="beamp" name="beamp|<?= $item['name'].'|'.'3' ?>" required autocomplete="off" >
+																							</div>
+																						</div>
+																						<div class="col-md-3">
+																							<div class="input-group">
+																								<span class="input-group-addon"> 
+																									2 
+																								</span>	 
+																								<input oninput="myFunctionBeam(event)" type="text" class="form-control" style="width: 75%;" value="" id="beamp" name="beamp|<?= $item['name'].'|'.'2' ?>" required autocomplete="off" >
+																							</div>
+																						</div>
+																						<div class="col-md-3">
+																							<div class="input-group">
+																								<span class="input-group-addon"> 
+																									1 
+																								</span>	 
+																								<input oninput="myFunctionBeam(event)" type="text" class="form-control" style="width: 75%;" value="" id="beamp" name="beamp|<?= $item['name'].'|'.'1' ?>" required autocomplete="off" >
+																							</div>
+																						</div>
+																					<?php
+																						}
+																					?>
 																				</div>
-																				<div class="col-md-3">
-																					<div class="input-group"><span class="input-group-addon">2</span>
-																						<input oninput="myFunction2(event)" type="text" class="form-control"
-																						value="" id="2" name="2" 
-																						required autocomplete="off">
-																					</div>
-																			</div><div class="col-md-3">
-																				<div class="input-group"><span class="input-group-addon">1</span>
-																					<input oninput="myFunction1(event)" type="text" class="form-control"
-																					value="" id="1" name="1" 
-																					required autocomplete="off">
-																				</div>
-																		</div>
-																		</div>
-																	</div>
-																				<?php } ?>
+																			</div>
+																		<?php } ?>
 																	</div>
 																</div>
+															</div>
 														</div>
-													</div>
-
 													<input type="hidden" name="routeid" value="<?= $_GET['id'];?>">
 													<input type="hidden" name="action" value="calculationGuardrailReffDetail">
-													<input type="hidden" name="route" value="calculation/guardrail/manage">
+													<input type="hidden" name="route" value="master-data/tender/tender/managepengadaan">
+
 	
 													<button type="submit" class="btn btn-success pull-right"><i
 															class="fa fa-save"></i>

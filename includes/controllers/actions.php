@@ -6,7 +6,7 @@
 
 switch ($_POST['action']) {
            //JOB
-           case "addJob":
+        case "addJob":
             //isAuthorized("addJob");
             $status = Job::addJob($_POST);
             break;
@@ -172,6 +172,9 @@ switch ($_POST['action']) {
         //isAuthorized("deletePengadaanAcuan");
         $status = PengadaanAcuan::deletePengadaanAcuan($_POST);
         break;
+    case "calculationGuardrailReffDetail":
+        $status =  PengadaanAcuan::calculationGuardrailReffDetail($_POST);
+        break;
     
     //Department
     case "addDepartment":
@@ -288,8 +291,30 @@ switch ($_POST['action']) {
     case "deletePenawaran":
         //isAuthorized("deletePenawaran");
         $status = Tender::deletePenawaran($_POST);
-        break;                  
+        break;    
+    case "deleteOffer":
+        $status = Tender::deleteOffer($_POST);
+        break;    
+    case "deleteEvaluationResult":
+        $status = Tender::deleteEvaluationResult($_POST);
+        break;
+    case "deleteCriteria":
+        $status = Tender::deleteCriteria($_POST);
+        break;
 
+    case "editPenawaran":
+        $status = Tender::editPenawaran($_POST);
+        break;      
+
+    case "editEvaluationResult":
+        $status = Tender::editEvaluationResult($_POST);
+        break;
+    case "editInstruction":
+        $status = Tender::editInstruction($_POST);
+        break;
+    case "editCriteria":
+        $status = Tender::editCriteria($_POST);
+        break;
 
         // files
     case "uploadFile":

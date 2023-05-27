@@ -352,7 +352,7 @@ data-toggle="modal">
 					} else {
 						if(in_array("viewVendorSupplier",$perms) || true) { ?>
 						<li <?php if(strpos($route,'vendor') !==false) echo 'class="active"' ; ?>>
-							<a href='?route=vendor/manage/manage&id=<?php echo $item['id']; ?>'>
+							<a href='?route=vendor/manage/manage'>
 								<i class="fa fa-user fa-fw"></i> <span>
 									<?php _e('Vendor'); ?></span>
 							</a>
@@ -377,7 +377,7 @@ data-toggle="modal">
 						}else{
 							if(in_array("viewTender",$perms) || true) { ?>
 								<li <?php if(strpos($route,'tender') !==false) echo 'class="active"' ; ?>>
-									<a href="?route=tender/tender&id=<?php echo $item['id']; ?>">
+									<a href="?route=tender/tender">
 										<i class="fa fa-newspaper-o fa-fw"></i> <span>
 											<?php _e('Tender'); ?></span>
 									</a>
@@ -548,3 +548,4 @@ data-toggle="modal">
 		<script src="template/assets/plugins/morris.js/morris.min.js"></script>
 		<!-- FastClick -->
 		<script src="template/assets/plugins/fastclick/lib/fastclick.js"></script>
+		<script src="template/assets/main.js"></script>

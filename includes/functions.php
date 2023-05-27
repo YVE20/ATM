@@ -473,8 +473,8 @@ function signIn($email, $password)
     $people = $database->count("people", ["AND" => ["email" => $email, "password" => sha1($password)]]);
 
     if ($people == "1") {
-        //session_start();
         $sessionid = session_id();
+        $_SESSION['email'] = $email;
         $database->update("people", ["sessionid" => $sessionid], ["email" => $email]);
         $people = $database->get("people", "*", ["email" => $email]);
         logSystem("User/Admin Logged In - ID: " . $people['id']);

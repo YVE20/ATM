@@ -70,7 +70,7 @@
                                     <tr>
                                         <td>
                                             <?php if(in_array("manage",$perms) || true) { ?><a
-                                                href='?route=tender/tender/manage&id=<?php echo $tender['id']; ?>'><?php echo $tender['kode']; ?></a><?php } else { echo $tender['name']; }?>
+                                                href='?route=tender/tender/manage&id=<?php echo $tender[0]; ?>'><?php echo $tender['kode']; ?></a><?php } else { echo $tender['name']; }?>
                                         </td>
                                         <td>
                                             <?php if($tender['name'] == ""){?>

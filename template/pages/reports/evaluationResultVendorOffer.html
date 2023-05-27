@@ -1,0 +1,105 @@
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+
+	<!-- Main content -->
+	<?php  
+		$dataTender = $database->query("SELECT *FROM tender WHERE id='".$_GET['routeid']."'")->fetchAll();
+
+		$tenderItems = $database->query("SELECT *FROM tenderitems ti INNER JOIN tenderpenawaran tp ON ti.id = tp.id_itemtender 
+		INNER JOIN tender t ON t.id = ti.id_tender WHERE ti.id_tender='".$dataTender[0]['id']."' and tp.id_tendervendor ='".$_GET['idvendor']."' ORDER BY tp.harga ASC LIMIT 1")->fetchAll();	
+
+		$alamatLengkap = explode("_",$tenderItems[0]['alamat_kirim']);
+		$alamatSuffing = explode("_",$tenderItems[0]['alamat_gudang']);
+	?>
+	<section class="content">
+		<section class="invoice">
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 class="page-header"> <b> PT. Sarana Bangun Pusaka </b> </h2>
+				</div>
+				<div class="col-xs-12" style="margin-top: 10px;">
+					<p> Nomor  : <?= $dataTender[0]['kode'] ?> </p>
+					<p> Tanggal : <?= date('d/m/Y') ?> </p>
+					<p> Kepada : <?= $_GET['name']  ?> </p>
+				</div>
+				<div class="col-xs-12">
+					<center> <font class="h4"> <b> <u> SHIPPING INSTRUCTION </u> </b> </font> </center>
+				</div>
+				<div class="col-xs-12" style="margin-top: 15px;">
+					<table class="table">
+						<tr>
+							<td> Pengirim </td>
+							<td> : <b> PT. SARANA BANGUN PUSAKA</b> </td>
+						</tr>
+						<tr>
+							<td></td>
+							<td> &nbsp; Jl. Raya Kudus - Pati Km 12 Kudus 59382, Indonesia </td>
+						</tr>
+						<tr>
+							<td> Tujuan </td>
+							<td> : <b> <?= $alamatLengkap[0] ?> </b> </td>
+						</tr>
+						<tr>
+							<td></td>
+							<td> &nbsp; <?= $alamatLengkap[1] ?></td>
+						</tr>
+						<tr>
+							<td> Item Tender </td>
+							<td> : <?= $tenderItems[0]['nameitems'] ?> / <?= "Rp. ".number_format($tenderItems[0]['harga'],0,',','.') ?></td>
+						</tr>
+						<tr>
+							<td> Payment </td>
+							<td> : Kredit </td>
+						</tr>
+						<tr>
+							<td> Tgl Stuffing </td>
+							<td> : <?= $tenderItems[0]['tgl'] ?> </td>
+						</tr>
+						<tr>
+							<td> Tempat Stuffing </td>
+							<td> : <b>  <?= $alamatSuffing[0] ?> </b> </td>
+						</tr>
+						<tr>
+							<td></td>
+							<td> &nbsp; <?= $alamatSuffing[1] ?>  </td>
+						</tr>
+						<tr>
+							<td></td>
+							<td> &nbsp; Jawa Tengah </td>
+						</tr>
+						<tr>
+							<td> Keterangan </td>
+							<td> : <?= $tenderItems[0]['keterangan'] ?> </td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-xs-12" style="margin-top: 30px;margin-bottom: -50px;">
+					<table style="width: 100%;">
+						<tr style="height: 90px;">
+							<td> Hormat Kami, </td>
+							<td colspan="3"> <center> Mengetahui, </center> </td>
+						</tr>
+						<tr >
+							<td> <?= $_GET['name'] ?> </td>
+							<td> Shipment Dept. </td>
+							<td> Acc. Dept. </td>
+							<td> Manager </td>
+						</tr>
+						<tr style="line-height: 130px;">
+							<td> ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) </td>
+							<td> ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) </td>
+							<td> ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) </td>
+							<td> ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ) </td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-xs-12" style="margin-top: 30px;text-align: right;">
+					<button class="btn btn-success" data-toggle='tooltip' title='<?php _e('Edit Instruction'); ?>' onclick='showM("?modal=tender/editInstruction&reroute=tender/tender/manage&routeid=<?php echo $_GET['routeid']; ?>&harga=<?php echo $tenderItems[0]['harga']?>&idvendor=<?php echo $_GET['idvendor'] ?>")'> Edit </button>
+					<button class="btn btn-primary"> <i class="fa fa-print"></i> Print </button>
+					<button class="btn btn-secondary"> Cancel </button>		
+				</div>
+			</div>
+			<hr>
+		</section>
+	</section>"
+</aside>

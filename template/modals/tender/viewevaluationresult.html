@@ -1,0 +1,43 @@
+<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+  aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><?php _e('Evaluation Result'); ?>
+        <small> <?= $_GET['name'] ?> </small>
+    </h4>
+</div>
+    <div class="modal-body">
+        <?php  
+            $items = $database->query("SELECT *FROM tenderitems WHERE id_tender='".$_GET['routeid']."'")->fetchAll();
+            $statustenderpenawaran = $database->query("SELECT *FROM statustenderpenawaran WHERE id_vendortenderpenawaran='".$_GET['idvendor']."'")->fetchAll();
+        ?>
+        <div class="form-group">
+            <label for="nobatch"> <?= $items[0]['nameitems'] ?> </label> <br>
+            <input type="checkbox" style="width:3%;height: 3%;vertical-align: middle;margin: 10px;" onclick="return false;"  checked> <font> <?= "Rp. ".number_format($_GET['harga'],0,',','.') ?> </font>
+        </div>
+        <div class="form-group">
+            <input type="checkbox" <?php if($statustenderpenawaran[0]['price'] != 0) echo "checked=true";  ?> name="priceEvaluation"  id="priceEvaluation" style="width:3%;height: 3%;vertical-align: middle;margin: 10px;" > <font> Price / Cost Evaluation </font>
+            <input type="checkbox" <?php if($statustenderpenawaran[0]['administration'] != 0) echo "checked=true" ?> name="administrationEvaluation" id="administrationEvaluation"  style="width:3%;height: 3%;vertical-align: middle;margin: 10px;"> <font> Administration Evaluation </font>
+            <input type="checkbox" <?php if($statustenderpenawaran[0]['technical'] != 0) echo "checked=true" ?> name="technicalEvaluation" id="technicalEvaluation" style="width:3%;height: 3%;vertical-align: middle;margin: 10px;"> <font> Technical Evaluation </font> <br>
+            <input type="checkbox" <?php if($statustenderpenawaran[0]['winner'] != 0) echo "checked=true" ?> name="winnerEvaluation" id="winnerEvaluation" style="width:3%;height: 3%;vertical-align: middle;margin: 10px;"> <font> Winner </font>
+            <input type="checkbox" <?php if($statustenderpenawaran[0]['contract_winner'] != 0) echo "checked=true" ?> name="contractEvaluation" id="contractEvaluation" style="width:3%;height: 3%;vertical-align: middle;margin: 10px;"> <font> Contract Winner </font>
+        </div>
+        <div class="form-group">
+            <label for="information"> Information </label> <br>
+            <textarea name="information" id="information" class="form-control" style="resize: none;" rows="10"><?= $statustenderpenawaran[0]['information'] ?></textarea>
+        </div>
+
+        <input type="hidden" name="action" value="editEvaluationResult">
+        <input type="hidden" name="id_vendor" value="<?php echo $_GET['idvendor']; ?>">
+        <input type="hidden" name="route" value="<?php echo $_GET['reroute']; ?>">
+        <?php if(isset($_GET['section'])){?>
+        <input type="hidden" name="section" value="<?php echo $_GET['section']; ?>">
+        <?php }?>
+        <?php if(isset($_GET['routeid'])){?>
+        <input type="hidden" name="routeid" value="<?php echo $_GET['routeid']; ?>">
+        <?php }?>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>
+        <?php _e('Cancel'); ?></button>
+        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> <?php _e('Save'); ?></button>
+    </div>
+

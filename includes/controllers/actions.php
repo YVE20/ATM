@@ -315,6 +315,9 @@ switch ($_POST['action']) {
     case "editCriteria":
         $status = Tender::editCriteria($_POST);
         break;
+    case "checkExpedisi" :
+        $status = Tender::checkExpedisi($_POST);
+        break;
 
         // files
     case "uploadFile":

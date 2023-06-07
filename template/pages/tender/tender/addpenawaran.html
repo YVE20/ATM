@@ -135,28 +135,6 @@
 													?>
 												</div>
 											</div>
-											<div class="box-body">
-												<div class="row">
-													<div class="col-md-12">
-													<?php
-														$pengadaanacuan = $database->query("select * FROM pengadaanacuan  where pengadaanid=".$tenderr['id_pengadaan']." order by id desc")->fetchAll();
-
-														foreach ($pengadaanacuan as $item) { ?>
-															
-														<div class="checkbox">
-															<label>
-																<input type="checkbox" name="perms[]" id="perms[]"			
-																<?php $vendorservices  = $database->query("select * FROM vendorservices where id_vendor=" . $_GET['id'] . " order by id desc")->fetchAll();
-																	foreach ($vendorservices as $dor) {
-																		$servicesperms = unserialize ($dor['perms']); ?> value="<?php echo $item['name']; ?>" 
-																	<?php if(in_array($item['name'],$servicesperms)) echo "checked";  ?><?php }?>>
-																<?php echo $item['name']; ?>
-															</label>
-														</div>
-														<?php }?>
-													</div>
-												</div>
-											</div>
 										</div>
 									</div>
 

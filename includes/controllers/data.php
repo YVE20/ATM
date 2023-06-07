@@ -166,7 +166,7 @@ if ($route == "tender/tender/manage") {
     $vendorr = $database->select("vendor", "*", ["ORDER" => "id ASC"]);
     $tendervendorr = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
 
-    $penawaran = $database->query("select * FROM tenderpenawaran where id_tender=" . $_GET['id'] . " group by id_tendervendor order by id_tendervendor desc")->fetchAll();
+    $penawaran = $database->query("select * FROM tenderpenawaran where id_tender=" . $_GET['id'] . " group by id_tendervendor order by id_tendervendor, harga ASC")->fetchAll();
 
 
     $sendtender = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id_tender desc")->fetchAll();

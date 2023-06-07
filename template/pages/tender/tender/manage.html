@@ -397,7 +397,7 @@
 									<?php }
 												if(in_array("Tender",$perms) or true) { ?>
 									<div class="pull-right"><a
-											onClick='showM("?modal=tender/sendemail1&reroute=tender/tender/manage");return false'
+											onClick='showM("?modal=tender/sendemail1&reroute=tender/tender/manage&id=<?php echo $_GET['id']?>");return false'
 											data-toggle="modal" class="btn btn-primary btn-sm"><i class="fa fa-envelope"></i>
 											<?php _e('Send Tender'); ?></a></div>
 									<?php }

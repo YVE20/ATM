@@ -484,9 +484,6 @@ foreach ($tujuan as $address) {
     public static function editPenawaran($data){
       global $database;
 
-      print_r($data);
-      die();
-        
       //For image
       $imageFromDB = $database->query("SELECT dokumen from tenderpenawaran WHERE id='".$_GET['idtenderpenawaran']."'")->fetchAll();
       
@@ -503,7 +500,6 @@ foreach ($tujuan as $address) {
         move_uploaded_file($tempName, $folder);
       }
 
-      
       try{
         $database->update("tenderpenawaran", 
           [            
@@ -512,7 +508,7 @@ foreach ($tujuan as $address) {
             "harga" => $data['harga'],
             "dokumen" => $fileName,
             "timestamp" => date("Y-m-d H:i:s"),
-            "updated" => date('Y-m-d H:i:s')
+            "kriteria" => implode("",$data['kriteria'])
           ], 
           [ 
             "id" => $_GET['idtenderpenawaran'] 
@@ -552,7 +548,7 @@ foreach ($tujuan as $address) {
     }
     public static function editCriteria($data){
       global $database;
-
+      
       //Edit Pengadaan Acuan
       $database->update("pengadaanacuan",[
         "name" => $data['namaPengadaan']
@@ -575,5 +571,23 @@ foreach ($tujuan as $address) {
 
       logSystem("Criteria Tender Deleted");
       return "30";
+    }
+    public static function checkExpedisi($data){
+      global $database;
+
+      $dataTenderPenawaran = $database->query("SELECT *FROM tenderpenawaran WHERE id='".$data['id_tenderpenawaran']."'")->fetchAll(); 
+      $tenderPenawaran = $dataTenderPenawaran[0]['kriteria']; 
+      $kriteria = explode("_",substr($tenderPenawaran,0,-1)); 
+      
+      foreach($kriteria as $dataKriteria)
+      { 
+          $isiKriteria = explode("|",$dataKriteria); 
+          $query = $database->query("SELECT *FROM pengadaanacuandetail WHERE id_pengadaanacuandetail='".$isiKriteria[1]."' ")->fetchAll(); 
+
+          if($query != null){
+              echo $query[0][0]."|";
+          }
+      }
+      die();
     }
 }

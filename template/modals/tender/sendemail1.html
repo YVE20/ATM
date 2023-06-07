@@ -5,13 +5,15 @@
   </h4>
 </div>
 <div class="modal-body">
-
   <form method="post" action="class.tender.php">
     <div class="form-group">
       <label for="tujuan">
         <?php _e('Email'); ?> *</label>
+        <?php 
+          $tendervendorr = $database->query("select * FROM tendervendor where id_tender=" . $_GET['id'] . " order by id, id_tender desc")->fetchAll();
+        ?>
       <textarea type="hidden" class="form-control summernote" rows="1"
-        name="tujuan"><?php foreach ($tv as $item) { ?> <?php echo $item['email']; ?>, <?php } ?></textarea></div>
+        name="tujuan"><?php foreach ($tendervendorr as $item) { ?> <?php echo $item['email']; ?>, <?php } ?></textarea></div>
 
     <input type="hidden" name="tujuan" <?php foreach ($tv as $item) { ?> value="<?php echo $item['email']; ?>" ,
       <?php } ?>>

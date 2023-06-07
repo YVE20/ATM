@@ -99,22 +99,33 @@
 															class="fa fa-minus"></i></button></div>
 											</div>
 											<div class="box-body">
-												<div class="row">
-													<div class="col-md-12">
-													<?php
-															$pengadaanacuan = $database->query("select * FROM pengadaanacuan  where pengadaanid=".$tenderr['id_pengadaan']." order by id desc")->fetchAll();
+												<div class="col-md-12">
+													<?php 
+														$pengadaanacuan = $database->query("select * FROM pengadaanacuan  where pengadaanid=".$tenderr['id_pengadaan']." order by id desc")->fetchAll();
 
-															foreach ($pengadaanacuan as $item) { ?>
-														
-														<div class="checkbox">
-														<label><input type="checkbox" name="perms[]" id="perms[]"			
-															<?php $vendorservices  = $database->query("select * FROM vendorservices where id_vendor=" . $_GET['id'] . " order by id desc")->fetchAll();
-																foreach ($vendorservices as $dor) {
-															$servicesperms = unserialize ($dor['perms']); ?> value="<?php echo $item['name']; ?>" 
-														<?php if(in_array($item['name'],$servicesperms)) echo "checked";  ?><?php }?>>
-														<?php echo $item['name']; ?></label></div>
-																<?php }?>
-													</div>
+														foreach($pengadaanacuan as $PA){
+													?>
+														<label for="name"> <?= $PA['name'] ?> </label> <br>
+														<?php 
+															$pengadaanAcuanDetail = $database->query("SELECT *FROM pengadaanacuandetail WHERE id_pengadaanacuan='".$PA['id']."'")->fetchAll();
+
+															foreach($pengadaanAcuanDetail as $data){
+																
+														?>
+															<div class="col-md-3" style="margin-bottom: 15px;">
+																<div class="input-group">
+																	<span class="input-group-addon"> 
+																		<input type="checkbox" id="chkbx_<?= $data['id_pengadaanacuandetail']?>" name="kriteria[]"  value="<?= $data['detailpengadaan'].'|'.$data['id_pengadaanacuandetail'].'_' ?>">
+																	</span>	 
+																	<input type="text" id="kriteria_<?= $data['id_pengadaanacuandetail']?>" value="<?= $data['detailpengadaan'] ?>" readonly class="form-control">
+																</div>
+															</div>
+														<?php		
+															}
+														?>
+													<?php
+														}
+													?>
 												</div>
 											</div>
 										</div>
@@ -169,4 +180,31 @@
 			autoclose: true
 		});
 	});
+	$(document).ready(function(){
+		checkExspedisi();
+	})
+
+	function checkExspedisi(){
+		$.ajax({
+			method : 'POST',
+			headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+			//url : "http://"+"<?= $_SERVER['SERVER_NAME'] ?>"+"/atm?route=tender/tender/testing",
+			//url : "class.tender.php",
+			data : { 
+				id_tenderpenawaran : <?= $_GET['idtenderpenawaran'] ?>, 
+				action : "checkExpedisi",
+				route : "tender/tender/manage&id="+"<?php echo $tenderr['id']; ?>"
+			},
+			success:function(data){
+				var element = data.slice(0,-1);
+				var split = element.split("|");
+
+				jQuery.each(split, function(index,value){
+					$('#chkbx_'+value).prop('checked', true);
+				});
+			}
+		});
+	}
 </script>
